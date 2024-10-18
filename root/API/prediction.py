@@ -17,26 +17,43 @@ class Prediction:
         if len(X.shape) == 2:
             X = np.expand_dims(X, axis=2)
 
+        # Verifica se os dados têm o formato esperado
         if X.shape[1] != 8 or X.shape[2] != 1:
-            return {'error': 'Formato dos dados incorreto.'}, 400
+            return {'error': f"Formato dos dados incorreto. Esperado (None, 8, 1), recebido {X.shape}."}, 400
 
         prediction = self.model.predict(X)
         return {'prediction': prediction.tolist()}
 
     def is_attack(self, features):
-        X = np.array(features)
-        X = np.expand_dims(X, axis=0)
-        normalized_features = self.scaler.transform(X.reshape(-1, X.shape[-1])).reshape(X.shape)
+        try:
+            # Escalonamento dos dados
+            X = np.array(features)
+            X = np.expand_dims(X, axis=0)
+            normalized_features = self.scaler.transform(X.reshape(-1, X.shape[-1])).reshape(X.shape)
 
-        url = 'http://localhost:5000/predict'
-        data = {'features': normalized_features.tolist()}
-        response = requests.post(url, json=data)
+            # Enviar requisição para a API local
+            url = 'http://localhost:5000/predict'
+            data = {'features': normalized_features.tolist()}
+            response = requests.post(url, json=data)
 
-        if 'prediction' not in response.json():
-            return False
+            if response.status_code != 200:
+                return {'error': f"Erro ao acessar a API: {response.status_code}"}, response.status_code
 
-        normalized_prediction = response.json()['prediction'][0][0]
-        desnormalized_prediction = self.scaler.inverse_transform([[normalized_prediction]])[0][0]
+            response_json = response.json()
+            if 'prediction' not in response_json:
+                return {'error': 'A resposta da API não contém uma predição válida.'}, 500
 
-        threshold = 200.0
-        return desnormalized_prediction < threshold
+            normalized_prediction = response_json['prediction'][0][0]
+            desnormalized_prediction = self.scaler.inverse_transform([[normalized_prediction]])[0][0]
+
+            threshold = 200.0
+
+            # Salvar as informações em um arquivo de log
+            with open('./logs/predictions_log.txt', 'a') as log_file:
+                log_file.write(f"{normalized_prediction},{desnormalized_prediction},{'Ataque' if desnormalized_prediction < threshold else 'Permitido'}\n")
+
+            return desnormalized_prediction < threshold
+        except requests.RequestException as e:
+            return {'error': f"Erro de comunicação com a API: {str(e)}"}, 500
+        except Exception as e:
+            return {'error': f"Erro no processamento: {str(e)}"}, 500
