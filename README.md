@@ -1,4 +1,4 @@
-### Documentação da Ferramenta SPTI
+# Documentação da Ferramenta SPTI
 
 ---
 
