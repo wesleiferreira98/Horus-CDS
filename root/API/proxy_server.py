@@ -7,7 +7,7 @@ import threading
 import requests
 import json
 import joblib
-from flask_cors import CORS  # type: ignore
+from flask_cors import CORS # type: ignore
 import logging
 import matplotlib.pyplot as plt
 import re

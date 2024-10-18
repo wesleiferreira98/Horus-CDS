@@ -6,7 +6,7 @@ import logging
 from flask import send_file,request,jsonify # type: ignore
 
 # Configuração do diretório de logs
-LOG_DIR = './API/logs'
+LOG_DIR = './logs'
 os.makedirs(LOG_DIR, exist_ok=True)
 
 # Configuração do logging
@@ -25,10 +25,7 @@ class Logger:
         with open(self.log_file_path, 'a') as log_file:
             log_file.write(f"{message}\n")
 
-    def process_logs(self):
-        # Obter o filtro solicitado do front-end (padrão: "todos")
-        filtro = request.args.get('filter', 'todos')
-
+    def process_logs(self, filtro):
         # Variáveis para contadores de packet_logs.txt
         ataque_detectado = 0
         requisicao_normal = 0
@@ -85,7 +82,7 @@ class Logger:
                 })  # Adicione um log para inconclusivos
 
         # Processar o arquivo predictions_log.txt
-        pred_log_path = './API/predictions_log.txt'  # Supondo que esse arquivo exista
+        pred_log_path = './logs/predictions_log.txt'  # Supondo que esse arquivo exista
         with open(pred_log_path, 'r') as file:
             pred_lines = file.readlines()
 
@@ -122,7 +119,7 @@ class Logger:
         }
 
         # Retornar os dados como JSON
-        return jsonify(data)
+        return data
 
     def generate_prediction_chart(self):
         # Listas para armazenar os dados
@@ -131,7 +128,7 @@ class Logger:
         resultados = []
 
         # Caminho do arquivo de log de predições
-        log_file_path = './API/predictions_log.txt'  # Ajuste conforme o caminho correto
+        log_file_path = './logs/predictions_log.txt'  # Ajuste conforme o caminho correto
 
         # Ler as últimas 10 linhas do arquivo de log
         with open(log_file_path, 'r') as file:
@@ -199,7 +196,7 @@ class Logger:
         pattern_inconclusivo = re.compile(r"Pacote não TCP")
 
         # Processar o arquivo de log
-        log_file_path = './API/packet_logs.txt'  # O caminho onde o arquivo de log está armazenado no servidor
+        log_file_path = './logs/packet_logs.txt'  # O caminho onde o arquivo de log está armazenado no servidor
         with open(log_file_path, 'r') as file:
             for line in file:
                 if pattern_ataque.search(line):

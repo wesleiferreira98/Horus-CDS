@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard SPTI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css"> <!-- CSS separado -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Inclua o FontAwesome para os ícones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="js/scripts.js" defer></script> <!-- JavaScript separado -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">SPTI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="gerarRelatorio()">Gerar Relatório</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#configModal">Configurações</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Sobre</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal de Configurações -->
+    <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="configModalLabel">Configurações</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="chartType" class="form-label">Tipo de Gráfico para Logs de Rede:</label>
+                        <select id="chartType" class="form-select">
+                            <option value="bar">Barras</option>
+                            <option value="pie">Pizza</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="salvarConfiguracoes()" data-bs-dismiss="modal">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="dashboard-header text-center">
+            <h1>Dashboard de Monitoramento de Rede</h1>
+        </div>
+
+        <div class="mb-3 form-floating">
+            <input type="text" id="serverInfo" class="form-control" placeholder="Digite IP:Porta (Ex: 192.168.1.10:5000)">
+            <label for="serverInfo" class="form-label">IP e Porta do Servidor:</label>
+        </div>
+
+        <div class="d-flex justify-content-center mb-4">
+            <button id="toggleMonitor" class="btn btn-primary mx-2" title="Iniciar Monitoramento">
+                <i class="fas fa-play"></i>
+                <span class="d-none d-md-inline"> Iniciar</span>
+            </button>
+            <button class="btn btn-secondary mx-2" title="Atualizar Dados">
+                <i class="fas fa-sync-alt"></i>
+                <span class="d-none d-md-inline"> Atualizar</span>
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <label for="filter" class="form-label">Filtrar Dados:</label>
+            <select id="filter" class="form-select">
+                <option value="recentes">Mais Recentes</option>
+                <option value="antigos">Mais Antigos</option>
+                <option value="todos">Todos</option>
+            </select>
+        </div>
+
+        <div class="row text-center stats mb-4">
+            <div class="col-md-4">
+                <div class="bg-danger text-white p-3">
+                    <h5 id="totalAtaques">0 Ataques Detectados</h5>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-success text-white p-3">
+                    <h5 id="totalPermitidas">0 Requisições Permitidas</h5>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-secondary text-white p-3">
+                    <h5 id="totalInconclusivos">0 Inconclusivos</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-md-12 mb-4">
+                <canvas id="packetChart"></canvas>
+            </div>
+            <div class="col-lg-6 col-md-12 mb-4">
+                <canvas id="predictionChartNormalized"></canvas>
+            </div>
+            <div class="col-lg-6 col-md-12 mb-4">
+                <canvas id="predictionChartTime"></canvas>
+            </div>
+        </div>
+
+        <h3 class="mt-4">Detalhes das Informações</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Data e Hora</th>
+                    <th>IP de Origem</th>
+                    <th>IP de Destino</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody id="dadosTabela">
+                <!-- Dados da tabela serão inseridos aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    
+</body>
+</html>

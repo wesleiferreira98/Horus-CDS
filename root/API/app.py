@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify  # type: ignore
 from flask_cors import CORS  # type: ignore
 from packet_sniffer import PacketSniffer  
 from prediction import Prediction  
-from logger import Logger, log_packet  
+from logger import Logger
 import threading
 import os
 
@@ -10,12 +10,12 @@ app = Flask(__name__)
 CORS(app)
 
 # Inicializando o logger
-LOG_DIR = './API/logs'
+LOG_DIR = './logs'
 os.makedirs(LOG_DIR, exist_ok=True)
 logger = Logger('logs/packet_logs.txt')  
 
 # Instâncias das classes
-prediction_model = Prediction('./API/models/gru_model.h5', './API/models/scaler.pkl')
+prediction_model = Prediction('./models/gru_model.h5', './models/scaler.pkl')
 packet_sniffer = PacketSniffer(prediction_model, logger)
 
 @app.route('/gerar_dados', methods=['GET'])
