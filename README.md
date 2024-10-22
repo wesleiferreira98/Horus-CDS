@@ -9,6 +9,11 @@
 
 ---
 
+<div style="text-align: center;">
+    <img src="image/README/logoSPTI.png" alt="Descrição da Imagem" style="max-width: 15%; height: auto;">
+</div>
+
+
 ### 2. **Requisitos do Sistema**
 
 - **Sistema Operacional**: Linux, Windows, macOS
