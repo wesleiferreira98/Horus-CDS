@@ -1,4 +1,4 @@
-![1729629159083](image/README/1729629159083.png)# Documentação da Ferramenta SPTI
+# Documentação da Ferramenta SPTI
 
 ---
 
