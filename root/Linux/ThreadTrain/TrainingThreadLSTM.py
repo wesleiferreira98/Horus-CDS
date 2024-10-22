@@ -184,7 +184,7 @@ class TrainingThreadLSTM(QThread):
 
 
     def save_model(self,model):
-        self.output_directory = "ModelosComplilados"
+        self.output_directory = "./ModelosComplilados"
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directory, exist_ok=True)
         h5_filename = os.path.join(self.output_directory,"lstm_model.h5")

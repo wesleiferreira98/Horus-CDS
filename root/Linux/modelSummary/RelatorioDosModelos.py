@@ -9,9 +9,9 @@ class RelatorioDosModelos:
         self.model = model
         self.models_and_results = models_and_results
         self.metrics = metrics
-        self.output_directoryCSV = "RelatorioDosModelos(CSV)"
-        self.output_directoryPDF = "RelatorioDosModelos(PDF)"
-        self.output_directoryTXT = "RelatorioDosModelos(TXT)"
+        self.output_directoryCSV = "./RelatorioDosModelos(CSV)"
+        self.output_directoryPDF = "./RelatorioDosModelos(PDF)"
+        self.output_directoryTXT = "./RelatorioDosModelos(TXT)"
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directoryCSV, exist_ok=True)
         os.makedirs(self.output_directoryPDF, exist_ok=True)

@@ -323,13 +323,13 @@ class SPTI(QWidget):
 
     def plot_prediction(self, y_true, y_pred, dates, modelname):
         # Carregar o scaler salvo
-        scaler_file = os.path.join("TratamentoDeDados", "scaler.pkl")
+        scaler_file = "/TratamentoDeDados/scaler.pkl"
         scaler = joblib.load(scaler_file)
 
         # Convertendo as datas para o formato datetime
         dates = pd.to_datetime(dates)
 
-        self.output_directory = "PrevisoesDosModelos"
+        self.output_directory = "./PrevisoesDosModelos"
         os.makedirs(self.output_directory, exist_ok=True)
         
         # Usar apenas os 20 primeiros dados
@@ -385,10 +385,10 @@ class SPTI(QWidget):
 
     def plot_prediction_block(self, y_true, y_pred, modelname):
         # Carregar o scaler salvo
-        scaler_file = os.path.join("TratamentoDeDados", "scaler.pkl")
+        scaler_file = "/TratamentoDeDados/scaler.pkl"
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = "PrevisoesDosModelos(Block)"
+        self.output_directory = "/PrevisoesDosModelos(Block)"
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados
@@ -427,10 +427,10 @@ class SPTI(QWidget):
     
     def plot_prediction_boxplot(self, y_true, y_pred, modelname):
         # Carregar o scaler salvo
-        scaler_file = os.path.join("TratamentoDeDados", "scaler.pkl")
+        scaler_file = os.path.join("./TratamentoDeDados", "scaler.pkl")
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = "PrevisoesDosModelos(BoxPlot)"
+        self.output_directory = "./PrevisoesDosModelos(BoxPlot)"
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados
@@ -469,7 +469,7 @@ class SPTI(QWidget):
 
 
     def plot_metrics(self, mse, rmse, modelname):
-        output_directory = "MetricaDosModelos"
+        output_directory = "./MetricaDosModelos"
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         
@@ -497,7 +497,7 @@ class SPTI(QWidget):
         self.show_image(metrics_filename)
 
     def plot_metric_boxplot(self, mse_list, rmse_list, modelname):
-        output_directory = "MetricaDosModelos"
+        output_directory = "./MetricaDosModelos"
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
 
@@ -532,10 +532,10 @@ class SPTI(QWidget):
         self.plot_metrics_comparison_boxplot()
 
     def plot_metrics_comparison_boxplot(self, shared_csv_file="shared_model_metrics_list.csv"):
-        output_directory = "RelatorioDosModelos(CSV)"
+        output_directory = "./RelatorioDosModelos(CSV)"
         os.makedirs(output_directory, exist_ok=True)
 
-        output_directory1 = "ComparacaoMetricas(BoxPlot)"
+        output_directory1 = "./ComparacaoMetricas(BoxPlot)"
         os.makedirs(output_directory1, exist_ok=True)
         
         # Caminho completo do arquivo CSV
@@ -598,7 +598,7 @@ class SPTI(QWidget):
         self.plot_difference_comparison_boxplot()
 
     def plot_difference_comparison_boxplot(self, shared_csv_file="shared_model_difference_list.csv"):
-        output_directory = "RelatorioDosModelos(CSV)"
+        output_directory = "./RelatorioDosModelos(CSV)"
         os.makedirs(output_directory, exist_ok=True)
         
         # Caminho completo do arquivo CSV
@@ -631,7 +631,7 @@ class SPTI(QWidget):
         plt.grid(axis='y')
         plt.tight_layout()
 
-        output_directory1 = "PrevisaoDosModelos(Diferenca)"
+        output_directory1 = "./PrevisaoDosModelos(Diferenca)"
         os.makedirs(output_directory1, exist_ok=True)
 
         difference_filename = os.path.join(output_directory1, "boxplot_difference_comparison.jpg")
@@ -653,7 +653,7 @@ class SPTI(QWidget):
         self.main_layout.addLayout(layout)
     
     def plot_metrics_shared(self):
-        intput_directory = "RelatorioDosModelos(CSV)"
+        intput_directory = "./RelatorioDosModelos(CSV)"
         # Create the output directory if it doesn't exist
         metrics_filename = os.path.join(intput_directory, 'shared_model_metrics.csv')
         os.makedirs(intput_directory, exist_ok=True)
@@ -690,7 +690,7 @@ class SPTI(QWidget):
             plt.grid(axis='y')
             plt.tight_layout()
 
-            output_directory = "MetricaDosModelos"
+            output_directory = "./MetricaDosModelos"
             os.makedirs(output_directory, exist_ok=True)
 
             # Salvar a imagem do gráfico
@@ -700,7 +700,7 @@ class SPTI(QWidget):
     
     def plot_mse_progression(self,mse_values,model_name):
 
-        output_directory = "MetricaDosModelos"
+        output_directory = "./MetricaDosModelos"
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         plt.figure(figsize=(10, 6))
