@@ -104,10 +104,13 @@
 - Figura 4: Confirmação do Modelo escolhido. Fonte: Dos autores
 
   ![1729629009966](image/README/1729629009966.png)
-- Figura 5: Progresso do treinamento. Fonte: Dos autores
+- Figura 5: Tempo estimado de otimização do modelo. Fonte: Dos autores
+
+  ![1729631245388](image/README/1729631245388.png)
+- Figura 6: Progresso do teste. Fonte: Dos autores
 
   ![1729629159083](image/README/1729629159083.png)
-- Figura 6: Gráfico gerado pós treinamento. Fonte: Dos autores
+- Figura 7: Gráfico gerado pós treinamento. Fonte: Dos autores
 
 ---
 
