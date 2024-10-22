@@ -1,4 +1,4 @@
-# Documentação da Ferramenta SPTI
+![1729629159083](image/README/1729629159083.png)# Documentação da Ferramenta SPTI
 
 ---
 
@@ -30,15 +30,18 @@
 ### 3. **Instalação**
 
 - **Passo 1**: Clone o repositório do projeto:
+
   ```bash
   git clone https://github.com/usuario/spti.git
   cd spti
   ```
 - **Passo 2**: Instale as dependências:
+
   ```bash
   pip install -r requirements.txt
   ```
 - **Passo 3**: (Opcional) Utilize Docker para configurar o ambiente rapidamente:
+
   - **Dockerfile**: O projeto inclui um `Dockerfile` que pode ser utilizado para construir e rodar a aplicação em um contêiner.
 
   ```bash
@@ -73,21 +76,58 @@
 
 ### 5. **Interface Gráfica (Python Qt5)**
 
-- **Descrição**: A interface gráfica desenvolvida em **PyQt5** oferece uma visualização em tempo real das predições de pacotes de rede, exibindo os dados normalizados e desnormalizados.
+- **Descrição**: A interface gráfica desenvolvida em PyQt5 no SPTI tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
 - **Principais Funcionalidades**:
-  - Exibição de gráficos com predições de ataques e status de tráfego de rede.
-  - Painel de controle para visualização de requisições, mostrando IP de origem/destino, data/hora e status (Ataque/Permitido).
-  - Geração de logs e gráficos exportáveis.
+
+  - Exibição de uma barra de progresso que exibe o estado atual treinamento do modelo escolhido
+  - Exibe uma planilha com as informações do data set processado.
+  - Exibe pop-up para os usuário onde é informado o tempo de otimização do modelo e o progresso de carregamento do data set.
+  - Ao final do treinamento são exibidos gráficos de métricas e gráficos que comparam os valores reais e previstos pelo modelo.
 - **Execução**:
+
   ```bash
-  python SPTI.py
+  python main.py
   ```
+
+  #### Imagens do SPTI (PyQt5)
+
+  ![1729628601151](image/README/1729628601151.png)
+- Figura 1: Interfaçe inicial do SPTI. Fonte: Dos autores
+
+  ![1729628644600](image/README/1729628644600.png)
+- Figura 2: Barra de progresso do carregamento do data set. Fonte: Dos autores
+
+  ![1729628804168](image/README/1729628804168.png)
+- Figura 3: Planinha do Data set. Fonte: Dos autores
+
+  ![1729628949486](image/README/1729628949486.png)
+- Figura 4: Confirmação do Modelo escolhido. Fonte: Dos autores
+
+  ![1729629009966](image/README/1729629009966.png)
+- Figura 5: Progresso do treinamento. Fonte: Dos autores
+
+  ![1729629159083](image/README/1729629159083.png)
+- Figura 6: Gráfico gerado pós treinamento. Fonte: Dos autores
 
 ---
 
-### 6. **Parte Web do SPTI**
+### 6. Processo de Trenamento dos modelos no SPTI
 
-- **Descrição**: O **dashboard web** do SPTI foi desenvolvido utilizando as tecnologias **HTML**, **CSS** e **JavaScript**, em conjunto com o **Flask** ou **FastAPI** para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
+Todos os modelos utilizados no SPTI seguem um fluxo padronizado para treinamento e avaliação, garantindo consistência e eficiência no processo de implementação. A estrutura segue as seguintes etapas:
+
+1. **Pré-processamento dos Dados**: Antes de qualquer treinamento, os dados passam por um pipeline de pré-processamento. Isso inclui transformações como normalização, preenchimento de valores ausentes e engenharia de características, com a adição de médias móveis, desvios padrão e features de "lag".
+2. **Divisão de Dados**: O conjunto de dados é dividido em treinamento e teste (geralmente com uma proporção de 80/20), mantendo uma parte dos dados para validação do desempenho do modelo após o treinamento.
+3. **Ajuste de Hiperparâmetros**: O ajuste dos hiperparâmetros é feito de forma automatizada utilizando técnicas como o **RandomizedSearchCV**, explorando diferentes combinações de parâmetros para encontrar a melhor configuração do modelo.
+4. **Treinamento Incremental**: O modelo é treinado de maneira incremental, ajustando os pesos em cada época. Durante esse processo, métricas como o erro quadrático médio (MSE) e a raiz do erro quadrático médio (RMSE) são monitoradas para avaliar o progresso do modelo.
+5. **Avaliação e Métricas**: Após o treinamento, o modelo é avaliado no conjunto de teste, e métricas como o MSE, RMSE e o coeficiente de determinação (R²) são calculados para quantificar o desempenho. Esses resultados são posteriormente visualizados por meio de gráficos, que incluem também comparações entre valores reais e previstos.
+6. **Data Augmentation**: Para melhorar o desempenho e a generalização do modelo, o SPTI utiliza técnicas de "data augmentation", introduzindo pequenas variações nos dados de treinamento através de ruído aleatório. Isso aumenta a robustez do modelo.
+7. **Relatório e Armazenamento de Modelos**: Após o treinamento, o modelo é salvo em um diretório dedicado, juntamente com um relatório detalhado gerado automaticamente. Esse relatório inclui tanto as métricas obtidas quanto visualizações e um sumário do modelo.
+
+Essa padronização não só facilita a manutenção do SPTI, como também permite a adição de novos modelos de forma eficiente, utilizando a mesma infraestrutura de treinamento e avaliação.
+
+### 7. **Parte Web do SPTI**
+
+- **Descrição**: O **dashboard web** do SPTI foi desenvolvido utilizando as tecnologias **HTML**, **CSS** e **JavaScript**, em conjunto com o **Flask**  para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
 - **Estrutura**:
 
   - **HTML**: A estrutura básica do dashboard é montada em HTML, com elementos que incluem gráficos, tabelas de requisições e botões de controle.
@@ -113,9 +153,14 @@
 
   - **Acesso**: Após rodar o comando, abra um navegador e acesse `http://localhost:5000` para visualizar o dashboard.
 
+  #### Imagens do Dashboard web
+
+  ![1729629299664](image/README/1729629299664.png)
+- Painel de monitoramento do SPTI. Fonte: Dos autores.
+
 ---
 
-### 7. **Exemplo de Execução Completa**
+### 8. **Exemplo de Execução Completa**
 
 - **Passo 1**: Execute o script principal da API e a interface web:
   ```bash
@@ -127,7 +172,7 @@
 
 ---
 
-### 8. **Testes e Exemplos de Uso**
+### 9. **Testes e Exemplos de Uso**
 
 - **Exemplo de Teste Mínimo**:
   - Enviar um pacote de rede malicioso pela API e verificar o resultado no dashboard web. A API deverá identificar a atividade como um **ataque** e exibir a informação no gráfico e na tabela de requisições.
@@ -136,7 +181,7 @@
 
 ---
 
-### 9. **Contribuição e Suporte**
+### 10. **Contribuição e Suporte**
 
 - **Como contribuir**:
   - Para contribuir com o desenvolvimento da SPTI:
@@ -148,7 +193,7 @@
 
 ---
 
-### 10. **Futuras Melhorias**
+### 11. **Futuras Melhorias**
 
 - **Otimizações no Modelo**: Melhorar a precisão do modelo TCN ou explorar outros algoritmos de machine learning.
 - **Dashboard aprimorado**: Adicionar mais funcionalidades ao dashboard web, como filtros avançados e relatórios exportáveis.
