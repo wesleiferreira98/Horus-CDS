@@ -28,3 +28,8 @@ body {
 .stats .col h5 {
     margin: 0;
 }
+
+.stats .col-md-4 {
+    margin-bottom: 10px; /* Adiciona espaçamento inferior */
+}
+

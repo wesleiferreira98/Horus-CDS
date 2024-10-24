@@ -5,20 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard SPTI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css"> <!-- CSS separado -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Inclua o FontAwesome para os ícones -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-    <script src="js/scripts.js" defer></script> <!-- JavaScript separado -->
-    <link rel="icon" href="images/logoSPTI.png" type="image/x-icon">
+    
+   
+    <link rel="icon" href="{{ url_for('static', filename='images/logoSPTI.png') }}" type="image/x-icon">
+
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="images/logoSPTI.png" alt="Logo" style="height: 50px; margin-right: 8px;">
+                <img src="{{ url_for('static', filename='images/logoSPTI.png') }}" alt="Logo" style="height: 50px; margin-right: 8px;">
                 SPTI
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,11 +74,11 @@
         <div class="d-flex justify-content-center mb-4">
             <button id="toggleMonitor" class="btn btn-primary mx-2" title="Iniciar Monitoramento">
                 <i class="fas fa-play"></i>
-                <span class="d-none d-md-inline"> Iniciar</span>
+                <span class="d-inline"> Iniciar</span>
             </button>
             <button class="btn btn-secondary mx-2" title="Atualizar Dados">
                 <i class="fas fa-sync-alt"></i>
-                <span class="d-none d-md-inline"> Atualizar</span>
+                <span class="d-inline"> Atualizar</span>
             </button>
         </div>
 
@@ -126,21 +122,41 @@
         </div>
 
         <h3 class="mt-4">Detalhes das Informações</h3>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Data e Hora</th>
-                    <th>IP de Origem</th>
-                    <th>IP de Destino</th>
-                    <th>Tipo</th>
-                </tr>
-            </thead>
-            <tbody id="dadosTabela">
-                <!-- Dados da tabela serão inseridos aqui -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Data e Hora</th>
+                        <th>IP de Origem</th>
+                        <th>IP de Destino</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody id="dadosTabela">
+                    <!-- Dados da tabela serão inseridos aqui -->
+                </tbody>
+            </table>
+            <div class="pagination container d-flex justify-content-center align-items-center mt-3 mb-3">
+                <button class="btn btn-primary me-3" id="prevPage">Anterior</button>
+                <span id="pageNumber">Página 1</span>
+                <button class="btn btn-primary ms-3" id="nextPage">Próxima</button>
+            </div>
+        </div>        
     </div>
 
+
+    <footer class="bg-dark text-center py-3 mt-4">
+        <p class="mb-0 text-white">SPTI &copy; 2024 - Todos os direitos reservados.</p>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Inclua o FontAwesome para os ícones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    
     
 </body>
 </html>

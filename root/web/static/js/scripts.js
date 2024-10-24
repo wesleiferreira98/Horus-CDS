@@ -2,7 +2,47 @@ let monitoring = false;  // Flag para ativar/desativar monitoramento
 let intervalId;  // Armazena o ID do intervalo de monitoramento
 let tipoGraficoLogs = 'bar'; 
 
-// Função para buscar dados da API
+let currentPage = 1;  // Página inicial
+const rowsPerPage = 10;  // Número de linhas por página
+
+// Função para exibir a tabela com paginação
+function atualizarTabelaPaginada(data) {
+    const tabela = document.getElementById('dadosTabela');
+    tabela.innerHTML = ''; // Limpa a tabela
+
+    const logs = data.packet_logs.logs;
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const paginatedLogs = logs.slice(start, end);
+
+    paginatedLogs.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${log.timestamp}</td>
+            <td>${log.source_ip}</td>
+            <td>${log.destination_ip}</td>
+            <td>${log.tipo}</td>
+        `;
+        tabela.appendChild(tr);
+    });
+
+    // Atualizar o número da página
+    document.getElementById('pageNumber').textContent = `Página ${currentPage}`;
+}
+
+// Função para navegar entre as páginas
+document.getElementById('nextPage').addEventListener('click', () => {
+    currentPage++;
+    fetchData();
+});
+
+document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        fetchData();
+    }
+});
+
 
 
 // Função para buscar dados da API
@@ -26,7 +66,7 @@ async function fetchData() {
 
         const data = await response.json();
         atualizarGraficos(data);
-        atualizarTabela(data);
+        atualizarTabelaPaginada(data);
         atualizarTotais(data);  // Atualizar totais
     } catch (error) {
         console.error(error);
@@ -64,7 +104,7 @@ let packetChartInstance;  // Armazena a instância do gráfico de logs de pacote
 let predictionChartInstance;  // Armazena a instância do gráfico de predições
 let predictionChartTimeInstance;  // Armazena a instância do gráfico de predições desnormalizadas
 
-
+const maxPoints = 50;
 // Função para atualizar os gráficos
 function atualizarGraficos(data) {
     // Atualizando o gráfico de logs de rede
@@ -85,7 +125,7 @@ function atualizarGraficos(data) {
     if (packetChartInstance) {
         packetChartInstance.destroy();
     }
-    
+
     const ctxPacket = document.getElementById('packetChart').getContext('2d');
     packetChartInstance = new Chart(ctxPacket, {
         type: tipoGraficoLogs,
@@ -97,12 +137,18 @@ function atualizarGraficos(data) {
         }
     });
 
+    // Limitar o número de pontos exibidos no gráfico de predição normalizada
+    const normalizedLabels = data.predictions_log.resultados
+        .map((_, index) => `Pacote ${index + 1}`)
+        .slice(-maxPoints);  // Mantém apenas os últimos maxPoints
+    const normalizedPredictions = data.predictions_log.normalized_predictions.slice(-maxPoints);
+
     // Criando o gráfico para predição normalizada
     const normalizedData = {
-        labels: data.predictions_log.resultados.map((_, index) => `Pacote ${index + 1}`),
+        labels: normalizedLabels,
         datasets: [{
             label: 'Predição Normalizada',
-            data: data.predictions_log.normalized_predictions,
+            data: normalizedPredictions,
             backgroundColor: 'blue',
             fill: false,
             borderColor: 'blue',
@@ -126,15 +172,18 @@ function atualizarGraficos(data) {
         }
     });
 
-
-    
+    // Limitar o número de pontos exibidos no gráfico de tempo desnormalizado
+    const timeLabels = data.predictions_log.resultados
+        .map((_, index) => `Pacote ${index + 1}`)
+        .slice(-maxPoints);  // Mantém apenas os últimos maxPoints
+    const desnormalizedPredictions = data.predictions_log.desnormalized_predictions.slice(-maxPoints);
 
     // Criando o gráfico para tempo desnormalizado
     const timeData = {
-        labels: data.predictions_log.resultados.map((_, index) => `Pacote ${index + 1}`),
+        labels: timeLabels,
         datasets: [{
             label: 'Tempo Desnormalizado',
-            data: data.predictions_log.desnormalized_predictions,
+            data: desnormalizedPredictions,
             backgroundColor: 'green',
             fill: false,
             borderColor: 'green',
@@ -147,7 +196,7 @@ function atualizarGraficos(data) {
     }
 
     const ctxPredictionTime = document.getElementById('predictionChartTime').getContext('2d');
-    predictionChartTimeInstance=new Chart(ctxPredictionTime, {
+    predictionChartTimeInstance = new Chart(ctxPredictionTime, {
         type: 'line',
         data: timeData,
         options: {
@@ -157,6 +206,7 @@ function atualizarGraficos(data) {
         }
     });
 }
+
 
 // Função para buscar os dados imediatamente ao mudar o filtro
 document.getElementById('filter').addEventListener('change', fetchData);
