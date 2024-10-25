@@ -4,7 +4,7 @@
 
 ### 1. **Introdução**
 
-- **Nome da ferramenta**: SPTI (Sistema de Previsão e Tratamento de Incidentes)
+- **Nome da ferramenta**: Sistema de Previsão Temporal Inteligente (SPTI)
 - **Descrição geral**: A SPTI é uma solução para detectar e tratar incidentes de segurança em redes, com foco em ataques de botnet e outras ameaças cibernéticas. Utilizando redes neurais, como **TCN (Temporal Convolutional Network)**, a ferramenta analisa pacotes de rede para identificar atividades maliciosas. A SPTI inclui uma API REST para integração com outras soluções e uma interface gráfica desenvolvida em **PyQt5**. Além disso, conta com um **dashboard web** para monitoramento e visualização em tempo real.
 
 ---
