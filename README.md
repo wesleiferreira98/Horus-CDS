@@ -13,7 +13,6 @@
     <img src="image/README/logoSPTI.png" alt="Descrição da Imagem" style="max-width: 15%; height: auto;">
 </div>
 
-
 ### 2. **Requisitos do Sistema**
 
 - **Sistema Operacional**: Linux, Windows, macOS
@@ -165,6 +164,15 @@ Essa padronização não só facilita a manutenção do SPTI, como também permi
 
   ![1729629299664](image/README/1729629299664.png)
 - Painel de monitoramento do SPTI. Fonte: Dos autores.
+
+  ![1729864786627](image/README/1729864786627.png)
+- Planilha com informações detalhada dos pacotes: Fonte dos Autores
+
+  ![1729865527289](image/README/1729865527289.png)
+- Dashboard acessado pelo Celular: Fonte dos Autores
+
+  ![1729865640312](image/README/1729865640312.png)
+- Planilha vista pelo Celuar Fonte dos Autores
 
 ---
 
