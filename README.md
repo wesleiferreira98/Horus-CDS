@@ -1,11 +1,11 @@
-# Documentação da Ferramenta SPTI
+# Documentação da Ferramenta Hórus-CDS
 
 ---
 
 ### 1. **Introdução**
 
-- **Nome da ferramenta**: Sistema de Previsão Temporal Inteligente (SPTI)
-- **Descrição geral**: A SPTI é uma solução para detectar e tratar incidentes de segurança em redes, com foco em ataques de botnet e outras ameaças cibernéticas. Utilizando redes neurais, como **TCN (Temporal Convolutional Network)**, a ferramenta analisa pacotes de rede para identificar atividades maliciosas. A SPTI inclui uma API REST para integração com outras soluções e uma interface gráfica desenvolvida em **PyQt5**. Além disso, conta com um **dashboard web** para monitoramento e visualização em tempo real.
+- **Nome da ferramenta**: Hórus-Cyber Dectetion for Smart Grids (Hórus-CDS)
+- **Descrição geral**: O Hórus-CDS é uma solução para detectar e tratar incidentes de segurança em redes, com foco em ataques de botnet e outras ameaças cibernéticas. Utilizando redes neurais, como **TCN (Temporal Convolutional Network)**, a ferramenta analisa pacotes de rede para identificar atividades maliciosas. A SPTI inclui uma API REST para integração com outras soluções e uma interface gráfica desenvolvida em **PyQt5**. Além disso, conta com um **dashboard web** para monitoramento e visualização em tempo real.
 
 ---
 
@@ -36,7 +36,7 @@
 - **Passo 1**: Clone o repositório do projeto:
 
   ```bash
-  git clone https://github.com/usuario/spti.git
+  git clone https://github.com/usuario/horus-cds.git
   cd spti
   ```
 - **Passo 2**: Instale as dependências:
@@ -49,8 +49,8 @@
   - **Dockerfile**: O projeto inclui um `Dockerfile` que pode ser utilizado para construir e rodar a aplicação em um contêiner.
 
   ```bash
-  docker build -t spti .
-  docker run -p 5000:5000 spti
+  docker build -t horus-cds .
+  docker run -p 5000:5000 horus-cds
   ```
 
 ---
@@ -80,7 +80,7 @@
 
 ### 5. **Interface Gráfica (Python Qt5)**
 
-- **Descrição**: A interface gráfica desenvolvida em PyQt5 no SPTI tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
+- **Descrição**: A interface gráfica desenvolvida em PyQt5 no Hórus-CDS tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
 - **Principais Funcionalidades**:
 
   - Exibição de uma barra de progresso que exibe o estado atual treinamento do modelo escolhido
@@ -93,10 +93,10 @@
   python main.py
   ```
 
-  #### Imagens do SPTI (PyQt5)
+  #### Imagens do Hórus-CDS (PyQt5)
 
   ![1729628601151](image/README/1729628601151.png)
-- Figura 1: Interfaçe inicial do SPTI. Fonte: Dos autores
+- Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
 
   ![1729628644600](image/README/1729628644600.png)
 - Figura 2: Barra de progresso do carregamento do data set. Fonte: Dos autores
@@ -118,9 +118,9 @@
 
 ---
 
-### 6. Processo de Trenamento dos modelos no SPTI
+### 6. Processo de Trenamento dos modelos no Hórus-CDS
 
-Todos os modelos utilizados no SPTI seguem um fluxo padronizado para treinamento e avaliação, garantindo consistência e eficiência no processo de implementação. A estrutura segue as seguintes etapas:
+Todos os modelos utilizados no Hórus-CDS seguem um fluxo padronizado para treinamento e avaliação, garantindo consistência e eficiência no processo de implementação. A estrutura segue as seguintes etapas:
 
 1. **Pré-processamento dos Dados**: Antes de qualquer treinamento, os dados passam por um pipeline de pré-processamento. Isso inclui transformações como normalização, preenchimento de valores ausentes e engenharia de características, com a adição de médias móveis, desvios padrão e features de "lag".
 2. **Divisão de Dados**: O conjunto de dados é dividido em treinamento e teste (geralmente com uma proporção de 80/20), mantendo uma parte dos dados para validação do desempenho do modelo após o treinamento.
@@ -130,11 +130,11 @@ Todos os modelos utilizados no SPTI seguem um fluxo padronizado para treinamento
 6. **Data Augmentation**: Para melhorar o desempenho e a generalização do modelo, o SPTI utiliza técnicas de "data augmentation", introduzindo pequenas variações nos dados de treinamento através de ruído aleatório. Isso aumenta a robustez do modelo.
 7. **Relatório e Armazenamento de Modelos**: Após o treinamento, o modelo é salvo em um diretório dedicado, juntamente com um relatório detalhado gerado automaticamente. Esse relatório inclui tanto as métricas obtidas quanto visualizações e um sumário do modelo.
 
-Essa padronização não só facilita a manutenção do SPTI, como também permite a adição de novos modelos de forma eficiente, utilizando a mesma infraestrutura de treinamento e avaliação.
+Essa padronização não só facilita a manutenção do Hórus-CDS, como também permite a adição de novos modelos de forma eficiente, utilizando a mesma infraestrutura de treinamento e avaliação.
 
-### 7. **Parte Web do SPTI**
+### 7. **Parte Web do Hórus-CDS**
 
-- **Descrição**: O **dashboard web** do SPTI foi desenvolvido utilizando as tecnologias **HTML**, **CSS** e **JavaScript**, em conjunto com o **Flask**  para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
+- **Descrição**: O **dashboard web** do Hórus-CDS foi desenvolvido utilizando as tecnologias **HTML**, **CSS** e **JavaScript**, em conjunto com o **Flask**  para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
 - **Estrutura**:
 
   - **HTML**: A estrutura básica do dashboard é montada em HTML, com elementos que incluem gráficos, tabelas de requisições e botões de controle.
@@ -163,7 +163,7 @@ Essa padronização não só facilita a manutenção do SPTI, como também permi
   #### Imagens do Dashboard web
 
   ![1729629299664](image/README/1729629299664.png)
-- Painel de monitoramento do SPTI. Fonte: Dos autores.
+- Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
 
   ![1729864786627](image/README/1729864786627.png)
 - Planilha com informações detalhada dos pacotes: Fonte dos Autores
@@ -200,7 +200,7 @@ Essa padronização não só facilita a manutenção do SPTI, como também permi
 ### 10. **Contribuição e Suporte**
 
 - **Como contribuir**:
-  - Para contribuir com o desenvolvimento da SPTI:
+  - Para contribuir com o desenvolvimento do Hórus-CDS:
     - Faça um **fork** do projeto.
     - Crie uma nova **branch** para as suas alterações.
     - Envie um **pull request** com a descrição detalhada das modificações.
