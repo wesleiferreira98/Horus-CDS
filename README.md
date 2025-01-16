@@ -37,7 +37,7 @@
 
   ```bash
   git clone https://github.com/usuario/horus-cds.git
-  cd spti
+  cd horus-cds
   ```
 - **Passo 2**: Instale as dependências:
 
