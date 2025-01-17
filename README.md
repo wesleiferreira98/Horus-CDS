@@ -162,7 +162,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
   #### Imagens do Dashboard web
 
-  ![1729629299664](image/README/1737075151896.png)
+  ![1737125366674](image/README/1737125366674.png)
 - Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
 
   ![1737075365354](image/README/1737075365354.png)
@@ -171,7 +171,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
   ![1729864786627](image/README/1729864786627.png)
 - Planilha com informações detalhada dos pacotes: Fonte dos Autores
 
-  ![1737075288072](image/README/1737075288072.png)![1737075549620](image/README/1737075549620.png)
+  ![1737125445590](image/README/1737125445590.png)![1737075549620](image/README/1737075549620.png)
 - Dashboard acessado pelo Celular: Fonte dos Autores
 
   ![1729865640312](image/README/1729865640312.png)
