@@ -36,8 +36,8 @@
 - **Passo 1**: Clone o repositório do projeto:
 
   ```bash
-  git clone https://github.com/usuario/horus-cds.git
-  cd horus-cds
+  git clone https://github.com/usuario/Horus-CDS.git
+  cd Horus-CDS
   ```
 - **Passo 2**: Instale as dependências:
 
