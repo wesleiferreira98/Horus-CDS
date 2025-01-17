@@ -30,7 +30,10 @@ KNN_results.csv
 log_chart.png
 prediction_chart.png
 rnn_model_summary.txt
-*.txt
+GRU_model_metrics.txt   
+RNN_model_metrics.txt
+LSTM_model_metrics.txt  
+TCN_model_metrics.txt
 LSTM_model_results.csv
 prediction_plot.jpg
 *.jpg
