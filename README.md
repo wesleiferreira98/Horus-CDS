@@ -1,4 +1,4 @@
-# Documentação da Ferramenta Hórus-CDS
+![1737075288072](image/README/1737075288072.png)# Documentação da Ferramenta Hórus-CDS
 
 ---
 
@@ -162,13 +162,16 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
   #### Imagens do Dashboard web
 
-  ![1729629299664](image/README/1729629299664.png)
+  ![1729629299664](image/README/1737075151896.png)
 - Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
+
+  ![1737075365354](image/README/1737075365354.png)
+- Gráficos do Painel do Hórus-CDS. Fonte: Dos autores.
 
   ![1729864786627](image/README/1729864786627.png)
 - Planilha com informações detalhada dos pacotes: Fonte dos Autores
 
-  ![1729865527289](image/README/1729865527289.png)
+  ![1737075288072](image/README/1737075288072.png)![1737075549620](image/README/1737075549620.png)
 - Dashboard acessado pelo Celular: Fonte dos Autores
 
   ![1729865640312](image/README/1729865640312.png)
