@@ -59,6 +59,7 @@
 
 - **Passo 1**: Execute o arquivo da API:
   ```bash
+  cd root/API
   python app.py
   ```
 - **Passo 2**: O sistema abrirá um endpoint em `http://localhost:5000`, permitindo o envio de pacotes de rede para detecção de ataques.
@@ -66,7 +67,7 @@
   - **POST /predict**
     - Enviar pacotes para o endpoint `/predict` para análise:
       ```bash
-      curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d '{"features": [dados_do_pacote]}'
+      curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d '{"features": [[[144], [570], [143], [126], [607], [705], [143], [741]]]}'
       ```
   - **Resposta**:
     ```json
@@ -90,6 +91,7 @@
 - **Execução**:
 
   ```bash
+  cd root/Linux
   python main.py
   ```
 
@@ -155,6 +157,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 - **Como Executar**:
 
   ```bash
+  cd root/web
   python run_web.py
   ```
 
@@ -179,19 +182,8 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### 8. **Exemplo de Execução Completa**
 
-- **Passo 1**: Execute o script principal da API e a interface web:
-  ```bash
-  python start_app.py
-  ```
-- **Passo 2**: Acesse o **dashboard** da ferramenta através de `http://localhost:5000`.
-  - O dashboard exibirá as predições do modelo e as requisições de pacotes sendo atualizadas em tempo real.
-  - Os gráficos mostram os resultados das predições e se os pacotes foram classificados como "Ataque" ou "Permitido".
-
----
-
-### 9. **Testes e Exemplos de Uso**
+### 8. **Testes e Exemplos de Uso**
 
 - **Exemplo de Teste Mínimo**:
   - Enviar um pacote de rede malicioso pela API e verificar o resultado no dashboard web. A API deverá identificar a atividade como um **ataque** e exibir a informação no gráfico e na tabela de requisições.
@@ -200,7 +192,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### 10. **Contribuição e Suporte**
+### 9. **Contribuição e Suporte**
 
 - **Como contribuir**:
   - Para contribuir com o desenvolvimento do Hórus-CDS:
@@ -212,7 +204,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### 11. **Futuras Melhorias**
+### 10. **Futuras Melhorias**
 
 - **Otimizações no Modelo**: Melhorar a precisão do modelo TCN ou explorar outros algoritmos de machine learning.
 - **Dashboard aprimorado**: Adicionar mais funcionalidades ao dashboard web, como filtros avançados e relatórios exportáveis.
