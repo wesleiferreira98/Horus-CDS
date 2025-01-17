@@ -1,4 +1,4 @@
-![1737075288072](image/README/1737075288072.png)# Documentação da Ferramenta Hórus-CDS
+# Documentação da Ferramenta Hórus-CDS
 
 ---
 
