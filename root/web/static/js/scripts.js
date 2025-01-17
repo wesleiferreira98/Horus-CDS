@@ -5,6 +5,16 @@ let tipoGraficoLogs = 'bar';
 let currentPage = 1;  // Página inicial
 const rowsPerPage = 10;  // Número de linhas por página
 
+
+function showLoadingSpinner() {
+    document.getElementById('loadingSpinner').style.display = 'flex';
+}
+
+function hideLoadingSpinner() {
+    document.getElementById('loadingSpinner').style.display = 'none';
+}
+
+
 // Função para exibir a tabela com paginação
 function atualizarTabelaPaginada(data) {
     const tabela = document.getElementById('dadosTabela');
@@ -43,34 +53,53 @@ document.getElementById('prevPage').addEventListener('click', () => {
     }
 });
 
+const syncBtn = document.getElementById("syncBtn");
+const dataContainer = document.getElementById("dataContainer");
 
+syncBtn.addEventListener("click", async () => {
+    fetchData();
+});
 
 // Função para buscar dados da API
 async function fetchData() {
     const serverInfo = document.getElementById('serverInfo').value;
     const filter = document.getElementById('filter').value;
+
     if (!serverInfo) {
         alert('Digite o IP e a Porta do servidor!');
         return;
     }
 
-    // Separar IP e porta
     const [ip, port] = serverInfo.split(':');
+    if (!ip || !port) {
+        alert('Formato inválido! Digite no formato IP:PORTA.');
+        return;
+    }
+
     const url = `http://${ip}:${port}/gerar_dados?filter=${filter}`;
+
+    showLoadingSpinner();
+    syncBtn.disabled = true;
+    syncBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Atualizando...`;
 
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('Erro ao acessar a API');
+            const errorMessage = `Erro ${response.status}: ${response.statusText}`;
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
         atualizarGraficos(data);
         atualizarTabelaPaginada(data);
-        atualizarTotais(data);  // Atualizar totais
+        atualizarTotais(data); // Atualizar totais
     } catch (error) {
         console.error(error);
-        alert('Erro ao buscar os dados da API.');
+        alert(`Erro ao buscar os dados da API: ${error.message}`);
+    } finally {
+        hideLoadingSpinner();
+        syncBtn.disabled = false;
+        syncBtn.innerHTML = `<i class="fas fa-sync-alt"></i> Atualizar`;
     }
 }
 
@@ -92,13 +121,84 @@ document.getElementById('toggleMonitor').addEventListener('click', () => {
         clearInterval(intervalId);
     }
 });
-
+let previousData = {
+    ataques: 0,
+    permitidas: 0,
+    inconclusivos: 0,
+};
 
 function atualizarTotais(data) {
-    document.getElementById('totalAtaques').textContent = `${data.packet_logs.ataques_detectados} Ataques Detectados`;
-    document.getElementById('totalPermitidas').textContent = `${data.packet_logs.requisicoes_permitidas} Requisições Permitidas`;
-    document.getElementById('totalInconclusivos').textContent = `${data.packet_logs.inconclusivos} Inconclusivos`;
+    // Certifique-se de que os dados existem
+    const totalAtaques = data.packet_logs?.ataques_detectados ?? 0;
+    const totalPermitidas = data.packet_logs?.requisicoes_permitidas ?? 0;
+    const totalInconclusivos = data.packet_logs?.inconclusivos ?? 0;
+
+    // Apenas atualize os valores e setas se os dados forem diferentes
+    if (
+        totalAtaques !== previousData.ataques ||
+        totalPermitidas !== previousData.permitidas ||
+        totalInconclusivos !== previousData.inconclusivos
+    ) {
+        // Atualizar os elementos com os valores e ícones de tendência
+        document.getElementById('totalAtaques').innerHTML = `
+            ${totalAtaques} Ataques Detectados 
+            <span style="
+                display: inline-block; 
+                width: 24px; 
+                height: 24px; 
+                background-color: ${totalAtaques > previousData.ataques ? '#ffcccc' : '#ccffcc'}; 
+                color: black; 
+                border-radius: 50%; 
+                text-align: center; 
+                line-height: 24px; 
+                font-size: 1.2em;
+            ">
+                ${totalAtaques > previousData.ataques ? '↑' : '↓'}
+            </span>
+        `;
+        document.getElementById('totalPermitidas').innerHTML = `
+            ${totalPermitidas} Requisições Permitidas 
+            <span style="
+                display: inline-block; 
+                width: 24px; 
+                height: 24px; 
+                background-color: ${totalPermitidas > previousData.permitidas ? '#ccffcc' : '#ffcccc'}; 
+                color: black; 
+                border-radius: 50%; 
+                text-align: center; 
+                line-height: 24px; 
+                font-size: 1.2em;
+            ">
+                ${totalPermitidas > previousData.permitidas ? '↑' : '↓'}
+            </span>
+        `;
+        document.getElementById('totalInconclusivos').innerHTML = `
+            ${totalInconclusivos} Inconclusivos 
+            <span style="
+                display: inline-block; 
+                width: 24px; 
+                height: 24px; 
+                background-color: ${totalInconclusivos > previousData.inconclusivos ? '#ffe5b4' : '#b3e6ff'}; 
+                color: black; 
+                border-radius: 50%; 
+                text-align: center; 
+                line-height: 24px; 
+                font-size: 1.2em;
+            ">
+                ${totalInconclusivos > previousData.inconclusivos ? '↑' : '↓'}
+            </span>
+        `;
+
+
+
+        // Atualizar os dados anteriores
+        previousData.ataques = totalAtaques;
+        previousData.permitidas = totalPermitidas;
+        previousData.inconclusivos = totalInconclusivos;
+    }
 }
+
+
 
 let packetChartInstance;  // Armazena a instância do gráfico de logs de pacotes
 let predictionChartInstance;  // Armazena a instância do gráfico de predições

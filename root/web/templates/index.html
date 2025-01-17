@@ -11,6 +11,9 @@
 
 </head>
 <body>
+    <div id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>    
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -63,7 +66,7 @@
 
     <div class="container mt-4">
         <div class="dashboard-header text-center">
-            <h1>Dashboard de Monitoramento de Rede</h1>
+            <h1>Monitoramento em Tempo Real – Hórus-CDS</h1>
         </div>
 
         <div class="mb-3 form-floating">
@@ -76,7 +79,7 @@
                 <i class="fas fa-play"></i>
                 <span class="d-inline"> Iniciar</span>
             </button>
-            <button class="btn btn-secondary mx-2" title="Atualizar Dados">
+            <button id="syncBtn" class="btn btn-secondary mx-2" title="Atualizar Dados">
                 <i class="fas fa-sync-alt"></i>
                 <span class="d-inline"> Atualizar</span>
             </button>
