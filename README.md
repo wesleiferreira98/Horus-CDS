@@ -17,7 +17,7 @@
 
 - **Sistema Operacional**: Linux, Windows, macOS
 - **Dependências**:
-  - **Python 3.x**
+  - **Python 3.12**
   - **Bibliotecas Python**:
     - `PyQt5`: Interface gráfica.
     - `TensorFlow/Keras`: Para o modelo TCN.
@@ -181,7 +181,6 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 - Planilha vista pelo Celuar Fonte dos Autores
 
 ---
-
 
 ### 8. **Testes e Exemplos de Uso**
 
