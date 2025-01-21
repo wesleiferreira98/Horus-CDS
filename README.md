@@ -44,15 +44,6 @@
   ```bash
   pip install -r requirements.txt
   ```
-- **Passo 3**: (Opcional) Utilize Docker para configurar o ambiente rapidamente:
-
-  - **Dockerfile**: O projeto inclui um `Dockerfile` que pode ser utilizado para construir e rodar a aplicação em um contêiner.
-
-  ```bash
-  docker build -t horus-cds .
-  docker run -p 5000:5000 horus-cds
-  ```
-
 ---
 
 ### 4. **Execução da API**
