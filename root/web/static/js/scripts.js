@@ -102,6 +102,120 @@ async function fetchData() {
         syncBtn.innerHTML = `<i class="fas fa-sync-alt"></i> Atualizar`;
     }
 }
+async function selectModel(model) {
+    const currentModelElement = document.getElementById('currentModel');
+    if (!currentModelElement) {
+        console.error("Elemento 'currentModel' não encontrado.");
+        return; // Interrompa a execução se o elemento não existir
+    }
+
+    const modelName = model.split(' ')[0] + ' ' + model.split(' ')[1];
+    currentModelElement.innerText = modelName;
+
+    try {
+        const serverInfo = document.getElementById('serverInfo').value;
+        if (!serverInfo) {
+            alert('Digite o IP e a Porta do servidor!');
+            return;
+        }
+
+        const [ip, port] = serverInfo.split(':');
+        if (!ip || !port) {
+            alert('Formato inválido! Digite no formato IP:PORTA.');
+            return;
+        }
+
+        const url = `http://${ip}:${port}/set_model`;
+        showLoadingSpinner();
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: model }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message || 'Modelo alterado com sucesso.');
+            limparDadosVisuais();
+            await fetchData();
+        } else {
+            alert(result.error || 'Erro ao alterar o modelo.');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao alterar o modelo.');
+    } finally {
+        hideLoadingSpinner();
+
+        
+
+    }
+}
+
+window.onload = async () => {
+    document.getElementById('currentModel').innerText = 'Hórus-CDS V4 (TCN)'; // Define o modelo padrão visualmente
+    await setDefaultModel(); // Configura o modelo padrão na API
+    fetchData(); // Busca os dados iniciais
+};
+
+// Função para configurar o modelo V4 como padrão
+async function setDefaultModel() {
+    const serverInfo = document.getElementById('serverInfo').value;
+    if (!serverInfo) {
+        console.warn('IP e Porta do servidor não foram fornecidos. Modelo padrão não configurado.');
+        return;
+    }
+
+    const [ip, port] = serverInfo.split(':');
+    if (!ip || !port) {
+        console.warn('Formato de IP e Porta inválidos. Modelo padrão não configurado.');
+        return;
+    }
+
+    const url = `http://${ip}:${port}/set_model`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'Horus-CDS V4 (TCN)' }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            console.error('Erro ao configurar o modelo padrão:', result.error || 'Erro desconhecido.');
+        } else {
+            console.log('Modelo padrão configurado com sucesso:', result.message);
+        }
+    } catch (error) {
+        console.error('Erro ao conectar ao servidor para configurar o modelo padrão:', error);
+    }
+}
+
+// Função para limpar os dados visuais (gráficos e tabela)
+function limparDadosVisuais() {
+    // Limpar a tabela
+    const tabela = document.getElementById('dadosTabela');
+    tabela.innerHTML = '';
+
+    // Limpar os gráficos (destruir instâncias existentes)
+    if (packetChartInstance) {
+        packetChartInstance.destroy();
+        packetChartInstance = null;
+    }
+    if (predictionChartInstance) {
+        predictionChartInstance.destroy();
+        predictionChartInstance = null;
+    }
+    if (predictionChartTimeInstance) {
+        predictionChartTimeInstance.destroy();
+        predictionChartTimeInstance = null;
+    }
+}
+
+
+
 
 // Função para iniciar/pausar monitoramento em tempo real
 document.getElementById('toggleMonitor').addEventListener('click', () => {

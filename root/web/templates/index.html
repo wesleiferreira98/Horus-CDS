@@ -6,7 +6,7 @@
     <title>Dashboard Hórus-CDS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     
-   
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="icon" href="{{ url_for('static', filename='images/logoSPTI.png') }}" type="image/x-icon">
 
 </head>
@@ -18,7 +18,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img src="{{ url_for('static', filename='images/logoSPTI.png') }}" alt="Logo" style="height: 40px; margin-right: 4px;">
-                Hórus-CDS
+                <span id="currentModel" data-bs-toggle="modal" data-bs-target="#modelModal">Hórus-CDS V4</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -39,6 +39,28 @@
         </div>
     </nav>
     
+    <!-- Modal de Seleção de Modelo -->
+    <div class="modal fade" id="modelModal" tabindex="-1" aria-labelledby="modelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modelModalLabel">Selecione o Modelo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-action" onclick="selectModel('Horus-CDS V1 (RNN)')">Horus-CDS V1 (RNN)</li>
+                        <li class="list-group-item list-group-item-action" onclick="selectModel('Horus-CDS V2 (LSTM)')">Horus-CDS V2 (LSTM)</li>
+                        <li class="list-group-item list-group-item-action" onclick="selectModel('Horus-CDS V3 (GRU)')">Horus-CDS V3 (GRU)</li>
+                        <li class="list-group-item list-group-item-action" onclick="selectModel('Horus-CDS V4 (TCN)')">Horus-CDS V4 (TCN)</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de Configurações -->
     <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
@@ -68,7 +90,7 @@
         <div class="dashboard-header text-center">
             <h1>Monitoramento em Tempo Real – Hórus-CDS</h1>
         </div>
-
+        
         <div class="mb-3 form-floating">
             <input type="text" id="serverInfo" class="form-control" placeholder="Digite IP:Porta (Ex: 192.168.1.10:5000)">
             <label for="serverInfo" class="form-label">IP e Porta do Servidor:</label>

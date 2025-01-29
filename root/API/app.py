@@ -11,11 +11,30 @@ CORS(app)
 
 # Inicializando o logger
 LOG_DIR = './logs'
+MODELS_DIR = './models'
 os.makedirs(LOG_DIR, exist_ok=True)
-logger = Logger('logs/packet_logs.txt')  
+os.makedirs(MODELS_DIR, exist_ok=True)
+# Inicialize o modelo padrão
+active_model_name = "Horus-CDS V4 (TCN)"
+model_paths = {
+    "Horus-CDS V1 (RNN)": "./models/rnn_model.h5",
+    "Horus-CDS V2 (LSTM)": "./models/lstm_model.h5",
+    "Horus-CDS V3 (GRU)": "./models/gru_model.h5",
+    "Horus-CDS V4 (TCN)": "./models/tcn_model.h5",
+}
+log_directories = {
+    "Horus-CDS V1 (RNN)": "./logs/rnn_logs/",
+    "Horus-CDS V2 (LSTM)": "./logs/lstm_logs/",
+    "Horus-CDS V3 (GRU)": "./logs/gru_logs/",
+    "Horus-CDS V4 (TCN)": "./logs/tcn_logs/",
+}
+
+# Inicialize o logger e o modelo ativo
+os.makedirs(log_directories[active_model_name], exist_ok=True)
+logger = Logger(f"{log_directories[active_model_name]}packet_logs.txt")
+prediction_model = Prediction(model_paths[active_model_name], './models/scaler.pkl')
 
 # Instâncias das classes
-prediction_model = Prediction('./models/gru_model.h5', './models/scaler.pkl')
 packet_sniffer = PacketSniffer(prediction_model, logger)
 
 @app.route('/gerar_dados', methods=['GET'])
@@ -36,6 +55,39 @@ def log_chart():
 def predict():
     data = request.json
     return prediction_model.predict(data['features'])
+
+
+
+@app.route('/set_model', methods=['POST'])
+def set_model():
+    global active_model_name, prediction_model, logger
+
+    data = request.json
+    selected_model = data.get("model")
+
+    if not selected_model:
+        return jsonify({"error": "Nenhum modelo foi especificado."}), 400
+
+    if selected_model not in model_paths:
+        return jsonify({"error": f"Modelo '{selected_model}' não encontrado. Escolha entre: {', '.join(model_paths.keys())}"}), 400
+
+    try:
+        # Criar nova instância antes do lock
+        new_model = Prediction(model_paths[selected_model], './models/scaler.pkl')
+        new_logger = Logger(f"{log_directories[selected_model]}packet_logs.txt")
+
+        with packet_sniffer.lock:
+            active_model_name = selected_model
+            prediction_model = new_model
+            logger = new_logger
+            packet_sniffer.prediction_model = new_model
+            packet_sniffer.logger = new_logger
+
+        return jsonify({"message": f"Modelo alterado para {selected_model} com sucesso."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     # Iniciar a captura de pacotes em uma thread separada
