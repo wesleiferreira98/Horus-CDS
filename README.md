@@ -20,10 +20,11 @@ Os selos considerados para o Hórus-CDS são:
 
 * **`root/Linux/`** - Contém os scripts para a execução da interface PyQt5.
 * **`root/web/`** - Contém os arquivos do dashboard web.
-* **`models/`** - Modelos de aprendizado de máquina pré-treinados.
-* **`logs/`** - Arquivos de logs gerados durante a execução do sistema.
-* **`api/`** - Código do servidor backend (Flask).
-* **`static/`** - Arquivos CSS, JS e imagens do dashboard web.
+* **`root/API/models/`** - Modelos de aprendizado de máquina pré-treinados.
+* **`root/API/logs/`** - Arquivos de logs gerados durante a execução do sistema.
+* **`root/API/`** - Código do servidor backend (Flask).
+* **`root/web/static/`** - Arquivos CSS, JS e imagens do dashboard web.
+* **`root/web/templates/`** - Contém os index.html onde está a estrutura principal da interface web.
 
 ## **Requisitos do Sistema**
 
