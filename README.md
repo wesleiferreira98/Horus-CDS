@@ -248,27 +248,6 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### **Testes e Exemplos de Uso**
-
-- **Exemplo de Teste Mínimo**:
-  - Enviar um pacote de rede malicioso pela API e verificar o resultado no dashboard web. A API deverá identificar a atividade como um **ataque** e exibir a informação no gráfico e na tabela de requisições.
-- **Testes com múltiplos cenários**:
-  - Teste o sistema enviando pacotes de diferentes tipos de ataque, como **DoS**, **injeção de comandos** ou **ataques de replay**, e veja o comportamento do modelo no dashboard web.
-
----
-
-### **Contribuição e Suporte**
-
-- **Como contribuir**:
-  - Para contribuir com o desenvolvimento do Hórus-CDS:
-    - Faça um **fork** do projeto.
-    - Crie uma nova **branch** para as suas alterações.
-    - Envie um **pull request** com a descrição detalhada das modificações.
-- **Suporte**:
-  - Em caso de dúvidas ou problemas, consulte a seção de **issues** no repositório ou entre em contato com os desenvolvedores.
-
----
-
 ### **Futuras Melhorias**
 
 - **Otimizações no Modelo**: Melhorar a precisão do modelo TCN ou explorar outros algoritmos de machine learning.
@@ -276,8 +255,6 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 - **Integração com Ferramentas de Segurança**: Expansão da API para se integrar com sistemas como **Wazuh**, aumentando as capacidades de monitoramento e resposta a incidentes.
 
 ---
-
-
 
 ## LICENSE
 
