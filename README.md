@@ -78,8 +78,6 @@ A execução da ferramenta não apresenta riscos significativos, porém:
   pip install -r requirements.txt
   ```
 
-
-
 ### Teste Minimo
 
 Para verificar a execução correta da ferramenta:
@@ -98,7 +96,6 @@ A resposta esperada será:
 }
 ```
 
-
 ---
 
 # Experimentos
@@ -113,9 +110,7 @@ A resposta esperada será:
 
 ### Experimento 2. **Interface Gráfica (Python Qt5)**
 
-
 **Descrição**: A interface gráfica desenvolvida em PyQt5 no Hórus-CDS tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
-
 
 **Principais Funcionalidades**:
 
@@ -142,42 +137,31 @@ python main.py
 
 ![1729628601151](image/README/1729628601151.png)
 
-
 Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
 
 ![1729628644600](image/README/1729628644600.png)
-
 
 Figura 2: Barra de progresso do carregamento do data set. Fonte: Dos autores
 
 ![1729628804168](image/README/1729628804168.png)
 
-
 Figura 3: Planinha do Data set. Fonte: Dos autores
 
 ![1729628949486](image/README/1729628949486.png)
-
 
 Figura 4: Confirmação do Modelo escolhido. Fonte: Dos autores
 
 ![1729629009966](image/README/1729629009966.png)
 
-
-
 Figura 5: Tempo estimado de otimização do modelo. Fonte: Dos autores
 
 ![1729631245388](image/README/1729631245388.png)
-
-
 
 Figura 6: Progresso do teste. Fonte: Dos autores
 
 ![1729629159083](image/README/1729629159083.png)
 
-
-
 Figura 7: Gráfico gerado pós treinamento. Fonte: Dos autores
-
 
 ---
 
@@ -243,8 +227,6 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-
-
 ## Reivindicações
 
 ### **Reivindicação #1: Monitoramento em Tempo Real**
@@ -262,6 +244,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 - **Resultado esperado**:
   - A interface web exibe predições em tempo real.
   - Ataques são corretamente identificados.
+  - Para executar a a interface web basta seguir os passos do **Experimento 3**
 
 ---
 
@@ -286,10 +269,16 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### 10. **Futuras Melhorias**
+### **Futuras Melhorias**
 
 - **Otimizações no Modelo**: Melhorar a precisão do modelo TCN ou explorar outros algoritmos de machine learning.
 - **Dashboard aprimorado**: Adicionar mais funcionalidades ao dashboard web, como filtros avançados e relatórios exportáveis.
 - **Integração com Ferramentas de Segurança**: Expansão da API para se integrar com sistemas como **Wazuh**, aumentando as capacidades de monitoramento e resposta a incidentes.
 
 ---
+
+
+
+## LICENSE
+
+Este projeto é licenciado sob a **GPL-3.0 License**.
