@@ -80,7 +80,7 @@ A execução da ferramenta não apresenta riscos significativos, porém:
 
 ### Teste Minimo
 
-Para verificar a execução correta da ferramenta:
+Para verificar a execução correta da ferramenta, faça somente após executar o **experimento 1**:
 
 ```
 curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" \
@@ -206,7 +206,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
   python run_web.py
   ```
 
-  - **Acesso**: Após rodar o comando, abra um navegador e acesse `http://localhost:5000` para visualizar o dashboard.
+  - **Acesso**: Após rodar o comando, abra um navegador e acesse `http://localhost:5001` para visualizar o dashboard.
 
   #### Imagens do Dashboard web
 
