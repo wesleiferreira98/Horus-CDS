@@ -1,35 +1,68 @@
-# Documentação da Ferramenta Hórus-CDS
+# Hórus-Cyber Detection for Smart Grids (Hórus-CDS)
 
----
+## Resumo
 
-### 1. **Introdução**
-
-- **Nome da ferramenta**: Hórus-Cyber Dectetion for Smart Grids (Hórus-CDS)
-- **Descrição geral**: O Hórus-CDS é uma solução para detectar e tratar incidentes de segurança em redes, com foco em ataques de botnet e outras ameaças cibernéticas. Utilizando redes neurais, como **TCN (Temporal Convolutional Network)**, a ferramenta analisa pacotes de rede para identificar atividades maliciosas. O Hórus-CDS inclui uma API REST para integração com outras soluções e uma interface gráfica desenvolvida em **PyQt5**. Além disso, conta com um **dashboard web** para monitoramento e visualização em tempo real.
-
----
+O Hórus-CDS é uma ferramenta para detecção e monitoramento de incidentes de segurança em redes elétricas inteligentes, com foco na identificação de ataques cibernéticos, como ataques distribuídos de negação de serviço (DDoS). A solução utiliza redes neurais do tipo **Temporal Convolutional Networks (TCN)** para identificar padrões anômalos nos logs de acesso dos **smart grids**. Além do TCN, outros modelos de aprendizado de máquina foram testados para comparação de desempenho em termos de precisão e recall. O Hórus-CDS também conta com duas interfaces: uma para o treinamento dos modelos e outra para monitoramento da segurança em tempo real.
 
 <div style="text-align: center;">
     <img src="image/README/logoSPTI.png" alt="Descrição da Imagem" style="max-width: 30%; height: auto;">
 </div>
 
-### 2. **Requisitos do Sistema**
+## Selos Considerados
 
-- **Sistema Operacional**: Linux, Windows, macOS
-- **Dependências**:
-  - **Python 3.12**
-  - **Bibliotecas Python**:
-    - `PyQt5`: Interface gráfica.
-    - `TensorFlow/Keras`: Para o modelo TCN.
-    - `Pandas`, `NumPy`: Manipulação e análise de dados.
-    - `Scikit-learn`: Normalização e processamento de dados.
-    - **Frameworks Web**:
-      - `Flask` ou `FastAPI` para a API REST.
-      - `HTML`, `CSS`, `JavaScript` para o desenvolvimento da parte web.
-    - **Outras dependências**:
-      - Docker (opcional) para isolar e facilitar a instalação.
+Os selos considerados para o Hórus-CDS são:
 
----
+* **Disponíveis (SeloD)**: O código-fonte e os modelos treinados estão acessíveis publicamente.
+* **Funcionais (SeloF)**: A ferramenta pode ser executada conforme documentado.
+* **Experimentos Reprodutíveis (SeloR)**: Os experimentos podem ser replicados seguindo as instruções fornecidas
+
+## **Estrutura do Repositório**
+
+* **`root/Linux/`** - Contém os scripts para a execução da interface PyQt5.
+* **`root/web/`** - Contém os arquivos do dashboard web.
+* **`models/`** - Modelos de aprendizado de máquina pré-treinados.
+* **`logs/`** - Arquivos de logs gerados durante a execução do sistema.
+* **`api/`** - Código do servidor backend (Flask).
+* **`static/`** - Arquivos CSS, JS e imagens do dashboard web.
+
+## **Requisitos do Sistema**
+
+### Requisitos de Hardware:
+
+* Processador: Intel Core i5 ou superior
+* Memória RAM: 8GB (recomendado 16GB)
+* Espaço em disco: 10GB livres
+* GPU: Opcional para aceleração de treinamento
+
+### Requisitos de Software:
+
+* **Sistema Operacional**: Linux, Windows ou macOS
+* **Python 3.12**
+* **Frameworks Web**: Flask ou FastAPI para a API REST
+* **Front-end**: HTML, CSS, JavaScript
+
+## Dependências
+
+Para a execução da ferramenta, as seguintes dependências devem ser instaladas:
+
+```
+pip install -r requirements.txt
+```
+
+Principais bibliotecas utilizadas:
+
+* `PyQt5`: Interface gráfica
+* `TensorFlow/Keras`: Modelos de aprendizado de máquina
+* `Pandas`, `NumPy`: Manipulação de dados
+* `Scikit-learn`: Normalização e processamento
+* `Matplotlib`, `Seaborn`: Visualização de dados
+
+## Preocupações com Segurança
+
+A execução da ferramenta não apresenta riscos significativos, porém:
+
+* É recomendável rodar os experimentos em ambiente isolado.
+* Não executar o código em redes de produção sem testes prévios.
 
 ### 3. **Instalação**
 
@@ -44,74 +77,111 @@
   ```bash
   pip install -r requirements.txt
   ```
+
+
+
+### Teste Minimo
+
+Para verificar a execução correta da ferramenta:
+
+```
+curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" \
+     -d '{"features": [[[144], [570], [143], [126], [607], [705], [143], [741]]]}'
+```
+
+A resposta esperada será:
+
+```
+{
+  "prediction": [valor_da_predição],
+  "status": "Ataque" ou "Permitido"
+}
+```
+
+
 ---
 
-### 4. **Execução da API**
+# Experimentos
+
+### Experimento 1. **Execução da API**
 
 - **Passo 1**: Execute o arquivo da API:
   ```bash
   cd root/API
   python app.py
   ```
-- **Passo 2**: O sistema abrirá um endpoint em `http://localhost:5000`, permitindo o envio de pacotes de rede para detecção de ataques.
-- **Exemplo de Endpoint**:
-  - **POST /predict**
-    - Enviar pacotes para o endpoint `/predict` para análise:
-      ```bash
-      curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d '{"features": [[[144], [570], [143], [126], [607], [705], [143], [741]]]}'
-      ```
-  - **Resposta**:
-    ```json
-    {
-      "prediction": [valor_da_predição],
-      "status": "Ataque" ou "Permitido"
-    }
-    ```
+
+### Experimento 2. **Interface Gráfica (Python Qt5)**
+
+
+**Descrição**: A interface gráfica desenvolvida em PyQt5 no Hórus-CDS tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
+
+
+**Principais Funcionalidades**:
+
+- Exibição de uma barra de progresso que exibe o estado atual treinamento do modelo escolhido
+- Exibe uma planilha com as informações do data set processado.
+- Exibe pop-up para os usuário onde é informado o tempo de otimização do modelo e o progresso de carregamento do data set.
+- Ao final do treinamento são exibidos gráficos de métricas e gráficos que comparam os valores reais e previstos pelo modelo.
+
+**Para iniciar o treinamento faça os seguintes passos**
+
+1. Clique em Selecionar Data Set
+2. Vá em na pasta  **DadosReais** e selecione  o arquivo **dados_normalizados_smartgrid.csv**
+3. Após isso  aguarde o carregamento da base de dados
+4. selecione qual modelo deseja treinar e clique em iniciar treinamento
+
+**Execução**:
+
+```bash
+cd root/Linux
+python main.py
+```
+
+#### Imagens do Hórus-CDS (PyQt5)
+
+![1729628601151](image/README/1729628601151.png)
+
+
+Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
+
+![1729628644600](image/README/1729628644600.png)
+
+
+Figura 2: Barra de progresso do carregamento do data set. Fonte: Dos autores
+
+![1729628804168](image/README/1729628804168.png)
+
+
+Figura 3: Planinha do Data set. Fonte: Dos autores
+
+![1729628949486](image/README/1729628949486.png)
+
+
+Figura 4: Confirmação do Modelo escolhido. Fonte: Dos autores
+
+![1729629009966](image/README/1729629009966.png)
+
+
+
+Figura 5: Tempo estimado de otimização do modelo. Fonte: Dos autores
+
+![1729631245388](image/README/1729631245388.png)
+
+
+
+Figura 6: Progresso do teste. Fonte: Dos autores
+
+![1729629159083](image/README/1729629159083.png)
+
+
+
+Figura 7: Gráfico gerado pós treinamento. Fonte: Dos autores
+
 
 ---
 
-### 5. **Interface Gráfica (Python Qt5)**
-
-- **Descrição**: A interface gráfica desenvolvida em PyQt5 no Hórus-CDS tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
-- **Principais Funcionalidades**:
-
-  - Exibição de uma barra de progresso que exibe o estado atual treinamento do modelo escolhido
-  - Exibe uma planilha com as informações do data set processado.
-  - Exibe pop-up para os usuário onde é informado o tempo de otimização do modelo e o progresso de carregamento do data set.
-  - Ao final do treinamento são exibidos gráficos de métricas e gráficos que comparam os valores reais e previstos pelo modelo.
-- **Execução**:
-
-  ```bash
-  cd root/Linux
-  python main.py
-  ```
-
-  #### Imagens do Hórus-CDS (PyQt5)
-
-  ![1729628601151](image/README/1729628601151.png)
-- Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
-
-  ![1729628644600](image/README/1729628644600.png)
-- Figura 2: Barra de progresso do carregamento do data set. Fonte: Dos autores
-
-  ![1729628804168](image/README/1729628804168.png)
-- Figura 3: Planinha do Data set. Fonte: Dos autores
-
-  ![1729628949486](image/README/1729628949486.png)
-- Figura 4: Confirmação do Modelo escolhido. Fonte: Dos autores
-
-  ![1729629009966](image/README/1729629009966.png)
-- Figura 5: Tempo estimado de otimização do modelo. Fonte: Dos autores
-
-  ![1729631245388](image/README/1729631245388.png)
-- Figura 6: Progresso do teste. Fonte: Dos autores
-
-  ![1729629159083](image/README/1729629159083.png)
-- Figura 7: Gráfico gerado pós treinamento. Fonte: Dos autores
-
----
-
-### 6. Processo de Trenamento dos modelos no Hórus-CDS
+### Processo de Trenamento dos modelos no Hórus-CDS do Experimento 2
 
 Todos os modelos utilizados no Hórus-CDS seguem um fluxo padronizado para treinamento e avaliação, garantindo consistência e eficiência no processo de implementação. A estrutura segue as seguintes etapas:
 
@@ -125,7 +195,7 @@ Todos os modelos utilizados no Hórus-CDS seguem um fluxo padronizado para trein
 
 Essa padronização não só facilita a manutenção do Hórus-CDS, como também permite a adição de novos modelos de forma eficiente, utilizando a mesma infraestrutura de treinamento e avaliação.
 
-### 7. **Parte Web do Hórus-CDS**
+### Experimento 3. **Parte Web do Hórus-CDS**
 
 - **Descrição**: O **dashboard web** do Hórus-CDS foi desenvolvido utilizando as tecnologias **HTML**, **CSS** e **JavaScript**, em conjunto com o **Flask**  para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
 - **Estrutura**:
@@ -173,7 +243,29 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### 8. **Testes e Exemplos de Uso**
+
+
+## Reivindicações
+
+### **Reivindicação #1: Monitoramento em Tempo Real**
+
+- **Objetivo**: Testar a eficácia do Hórus-CDS no ambiente de produção.
+- **Passos**:
+  1. Iniciar a API do sistema.
+  2. Simular tráfego de rede com requisições suspeitas e normais.
+  3. Analisar a classificação dos pacotes no dashboard web.
+- **Comando**:
+  ```bash
+  cd root/API
+  python app.py
+  ```
+- **Resultado esperado**:
+  - A interface web exibe predições em tempo real.
+  - Ataques são corretamente identificados.
+
+---
+
+### **Testes e Exemplos de Uso**
 
 - **Exemplo de Teste Mínimo**:
   - Enviar um pacote de rede malicioso pela API e verificar o resultado no dashboard web. A API deverá identificar a atividade como um **ataque** e exibir a informação no gráfico e na tabela de requisições.
@@ -182,7 +274,7 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ---
 
-### 9. **Contribuição e Suporte**
+### **Contribuição e Suporte**
 
 - **Como contribuir**:
   - Para contribuir com o desenvolvimento do Hórus-CDS:
