@@ -13,3 +13,4 @@ requests
 fpdf
 reportlab
 keras-tcn
+seaborn
