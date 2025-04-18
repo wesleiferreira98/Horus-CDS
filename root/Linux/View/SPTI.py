@@ -323,7 +323,7 @@ class SPTI(QWidget):
 
     def plot_prediction(self, y_true, y_pred, dates, modelname):
         # Carregar o scaler salvo
-        scaler_file = "/TratamentoDeDados/scaler.pkl"
+        scaler_file = "./TratamentoDeDados/scaler.pkl"
         scaler = joblib.load(scaler_file)
 
         # Convertendo as datas para o formato datetime
@@ -385,10 +385,10 @@ class SPTI(QWidget):
 
     def plot_prediction_block(self, y_true, y_pred, modelname):
         # Carregar o scaler salvo
-        scaler_file = "/TratamentoDeDados/scaler.pkl"
+        scaler_file = "./TratamentoDeDados/scaler.pkl"
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = "/PrevisoesDosModelos(Block)"
+        self.output_directory = "./PrevisoesDosModelos(Block)"
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados

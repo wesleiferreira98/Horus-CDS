@@ -54,7 +54,13 @@ def log_chart():
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
-    return prediction_model.predict(data['features'])
+    try:
+        result = prediction_model.predict(data['features'])
+        if 'error' in result:
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 

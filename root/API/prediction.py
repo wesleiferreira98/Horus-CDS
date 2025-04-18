@@ -11,18 +11,39 @@ class Prediction:
         self.input_shape = self.model.input_shape
 
     def predict(self, features):
-        X = np.array(features)
-        if len(X.shape) == 1:
-            X = np.expand_dims(X, axis=0)
-        if len(X.shape) == 2:
-            X = np.expand_dims(X, axis=2)
+        try:
+            X = np.array(features)
+            
+            # Ajuste de dimensionalidade
+            if len(X.shape) == 1:
+                X = np.expand_dims(X, axis=0)
+            if len(X.shape) == 2:
+                X = np.expand_dims(X, axis=2)
+            
+            # Verificação do formato
+            if X.shape[1] != 8 or X.shape[2] != 1:
+                return {'error': f"Formato incorreto. Esperado (None, 8, 1), recebido {X.shape}."}, 400
 
-        # Verifica se os dados têm o formato esperado
-        if X.shape[1] != 8 or X.shape[2] != 1:
-            return {'error': f"Formato dos dados incorreto. Esperado (None, 8, 1), recebido {X.shape}."}, 400
+            # Normalização das features
+            original_shape = X.shape
+            X_reshaped = X.reshape(-1, original_shape[-1])
+            X_normalized = self.scaler.transform(X_reshaped).reshape(original_shape)
 
-        prediction = self.model.predict(X)
-        return {'prediction': prediction.tolist()}
+            # Predição e desnormalização
+            prediction = self.model.predict(X_normalized)
+            desnormalized_prediction = self.scaler.inverse_transform(prediction.reshape(-1, 1))[0][0]
+
+            # Determinação do status
+            threshold = 200.0
+            status = "Ataque" if desnormalized_prediction < threshold else "Permitido"
+
+            return {
+                "prediction": round(float(desnormalized_prediction), 2),
+                "status": status
+            }
+
+        except Exception as e:
+            return {"error": str(e)}, 400
 
     def is_attack(self, features):
         try:
@@ -42,7 +63,6 @@ class Prediction:
             desnormalized_prediction = self.scaler.inverse_transform(prediction.reshape(-1, 1))[0][0]
             
             threshold = 200.0
-            # ... (código de logging permanece igual)
             
             return desnormalized_prediction < threshold
         except Exception as e:

@@ -37,7 +37,7 @@ Os selos considerados para o Hórus-CDS são:
 
 ### Requisitos de Software:
 
-* **Sistema Operacional**: Linux, Windows ou macOS
+* **Sistema Operacional**: Linux Fedora 40 ou superior, Windows 10 ou 11 ou macOS
 * **Python 3.12**
 * **Frameworks Web**: Flask ou FastAPI para a API REST
 * **Front-end**: HTML, CSS, JavaScript
@@ -85,7 +85,7 @@ Para verificar a execução correta da ferramenta, faça somente após executar 
 
 ```
 curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" \
-     -d '{"features": [[[144], [570], [143], [126], [607], [705], [143], [741]]]}'
+     -d '{"features": [[[244], [570], [243], [226], [607], [705], [243], [741]]]}'
 ```
 
 A resposta esperada será:
@@ -103,11 +103,21 @@ A resposta esperada será:
 
 ### Experimento 1. **Execução da API**
 
-- **Passo 1**: Execute o arquivo da API:
+- **Passo 1**: Execute o arquivo da API **com privilégios de superusuário** (o Scapy requer acesso RAW à interface de rede):
   ```bash
   cd root/API
-  python app.py
+  sudo python app.py
   ```
+
+**Nota** 
+
+Se preferir evitar usar `sudo`, configure as permissões do Python com:
+
+```
+sudo setcap cap_net_raw=eip $(which python3)
+```
+
+Após isso, execute normalmente sem `sudo`
 
 ### Experimento 2. **Interface Gráfica (Python Qt5)**
 
@@ -234,15 +244,19 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 - **Objetivo**: Testar a eficácia do Hórus-CDS no ambiente de produção.
 - **Passos**:
+
   1. Iniciar a API do sistema.
   2. Simular tráfego de rede com requisições suspeitas e normais.
   3. Analisar a classificação dos pacotes no dashboard web.
+  4. **Atenção** : A execução da API exige permissões de superusuário devido ao uso do Scapy. Ignorar isso resultará em erros de permissã
 - **Comando**:
+
   ```bash
   cd root/API
-  python app.py
+  sudo python app.py
   ```
 - **Resultado esperado**:
+
   - A interface web exibe predições em tempo real.
   - Ataques são corretamente identificados.
   - Para executar a a interface web basta seguir os passos do **Experimento 3**
