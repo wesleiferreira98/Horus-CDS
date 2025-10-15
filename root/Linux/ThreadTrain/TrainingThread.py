@@ -5,6 +5,7 @@ import pandas as pd
 from tensorflow.keras import layers, models, optimizers # type: ignore
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
 
 
 class TrainingThread(QThread):
@@ -35,11 +36,53 @@ class TrainingThread(QThread):
         scaler = StandardScaler()
         data_scaled = scaler.fit_transform(data)
         return data_scaled
+    
+    def apply_smote(self, X, y):
+        """
+        Aplica SMOTE para balanceamento de dados em problemas de regressão.
+        Para regressão, primeiro discretiza o target em bins e depois aplica SMOTE.
+        """
+        try:
+            # Para regressão, precisamos discretizar o target primeiro
+            # Criamos bins baseados nos quartis
+            quartiles = np.quantile(y, [0.25, 0.5, 0.75])
+            y_binned = np.digitize(y, quartiles)
+            
+            # Aplicamos SMOTE nos dados com target discretizado
+            smote = SMOTE(random_state=42, k_neighbors=min(5, len(np.unique(y_binned))-1))
+            X_resampled, y_binned_resampled = smote.fit_resample(X, y_binned)
+            
+            # Para reconstruir o y contínuo, usamos interpolação baseada nos bins
+            # Mapeamos os bins de volta para valores contínuos usando a média dos valores originais em cada bin
+            bin_means = {}
+            for bin_val in np.unique(y_binned):
+                mask = y_binned == bin_val
+                if np.any(mask):
+                    bin_means[bin_val] = np.mean(y[mask])
+                else:
+                    bin_means[bin_val] = np.mean(y)  # fallback
+            
+            # Reconstruímos o y contínuo
+            y_resampled = np.array([bin_means[bin_val] for bin_val in y_binned_resampled])
+            
+            # Adicionamos ruído gaussiano para restaurar a variabilidade contínua
+            noise_std = np.std(y) * 0.1  # 10% do desvio padrão original
+            y_resampled += np.random.normal(0, noise_std, len(y_resampled))
+            
+            return X_resampled, y_resampled
+            
+        except Exception as e:
+            print(f"Erro ao aplicar SMOTE: {e}")
+            print("Mantendo dados originais...")
+            return X, y
 
     def run(self):
         # Pré-processamento dos dados
         self.train_data_scaled = self.preprocess_data(self.train_data)
         self.test_data_scaled = self.preprocess_data(self.test_data)
+        
+        # Aplicar SMOTE para balanceamento dos dados
+        self.train_data_scaled, self.train_labels = self.apply_smote(self.train_data_scaled, self.train_labels)
 
         # Define uma grade de hiperparâmetros para ajustar
         param_grid = {

@@ -6,6 +6,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.base import BaseEstimator, RegressorMixin
+from imblearn.over_sampling import SMOTE
 from sklearn.neighbors import KNeighborsRegressor
 from PyQt5.QtCore import QThread, pyqtSignal
 from sklearn.metrics import mean_squared_error
@@ -84,8 +85,8 @@ class TrainingThreadKNN(QThread):
         self.X_train = preprocessor.fit_transform(self.X_train)
         self.X_test = preprocessor.transform(self.X_test)
 
-        # Augment data
-        self.X_train, self.y_train = self.augment_data(self.X_train, self.y_train)
+        # Apply SMOTE for data balancing
+        self.X_train, self.y_train = self.apply_smote(self.X_train, self.y_train)
 
     def run(self):
         self.build_data(self.data_set)
@@ -180,6 +181,45 @@ class TrainingThreadKNN(QThread):
         for lag in lags:
             data[f'LONGTIME_LAG_{lag}'] = data['LONGTIME'].shift(lag)
         return data
+
+    def apply_smote(self, X, y):
+        """
+        Aplica SMOTE para balanceamento de dados em problemas de regressão.
+        Para regressão, primeiro discretiza o target em bins e depois aplica SMOTE.
+        """
+        try:
+            # Para regressão, precisamos discretizar o target primeiro
+            # Criamos bins baseados nos quartis
+            quartiles = np.quantile(y, [0.25, 0.5, 0.75])
+            y_binned = np.digitize(y, quartiles)
+            
+            # Aplicamos SMOTE nos dados com target discretizado
+            smote = SMOTE(random_state=42, k_neighbors=min(5, len(np.unique(y_binned))-1))
+            X_resampled, y_binned_resampled = smote.fit_resample(X, y_binned)
+            
+            # Para reconstruir o y contínuo, usamos interpolação baseada nos bins
+            # Mapeamos os bins de volta para valores contínuos usando a média dos valores originais em cada bin
+            bin_means = {}
+            for bin_val in np.unique(y_binned):
+                mask = y_binned == bin_val
+                if np.any(mask):
+                    bin_means[bin_val] = np.mean(y[mask])
+                else:
+                    bin_means[bin_val] = np.mean(y)  # fallback
+            
+            # Reconstruímos o y contínuo
+            y_resampled = np.array([bin_means[bin_val] for bin_val in y_binned_resampled])
+            
+            # Adicionamos ruído gaussiano para restaurar a variabilidade contínua
+            noise_std = np.std(y) * 0.1  # 10% do desvio padrão original
+            y_resampled += np.random.normal(0, noise_std, len(y_resampled))
+            
+            return X_resampled, y_resampled
+            
+        except Exception as e:
+            print(f"Erro ao aplicar SMOTE: {e}")
+            print("Aplicando data augmentation tradicional como fallback...")
+            return self.augment_data(X, y)
 
     def augment_data(self, X, y):
         augmented_X = np.copy(X)

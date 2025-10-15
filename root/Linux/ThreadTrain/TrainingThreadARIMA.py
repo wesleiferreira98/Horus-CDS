@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
 from statsmodels.tsa.arima.model import ARIMA
 from PyQt5.QtCore import QThread, pyqtSignal
 from modelSummary.RelatorioDosModelos import RelatorioDosModelos
@@ -80,6 +81,11 @@ class TrainingThreadARIMA(QThread):
         return data
 
     def augment_data(self, X, y):
+        """
+        Nota: SMOTE não é diretamente aplicável a séries temporais como ARIMA
+        pois quebra a dependência temporal dos dados. Para ARIMA, utilizamos
+        técnicas de augmentação específicas para séries temporais.
+        """
         augmented_X = np.copy(X)
         augmented_y = np.copy(y)
 
