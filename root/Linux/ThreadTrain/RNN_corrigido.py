@@ -414,7 +414,9 @@ class TrainingThreadRNNCorrigido(QThread):
       'rmse': np.sqrt(test_mse_final),
       'r2': r_squared,
       'predictions': test_results,
-      'dates': self.dates_test
+      'dates': self.dates_test,
+      'mse_progression': mse_list,
+      'rmse_progression': rmse_list
     }
   
   def generate_confusion_matrix_corrected(self, y_true_categories, y_pred_longtime):

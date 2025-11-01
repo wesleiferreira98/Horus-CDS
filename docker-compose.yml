@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  horus-api:
+    build: .
+    container_name: horus-cds-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./root/API:/app/root/API
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python root/API/app.py
+    restart: unless-stopped
+    networks:
+      - horus-network
+
+  horus-web:
+    build: .
+    container_name: horus-cds-web
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./root/web:/app/root/web
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python root/web/run_web.py
+    restart: unless-stopped
+    networks:
+      - horus-network
+    depends_on:
+      - horus-api
+
+networks:
+  horus-network:
+    driver: bridge

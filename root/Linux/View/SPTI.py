@@ -27,6 +27,7 @@ import joblib
 import seaborn as sns
 import csv
 from View.CaptureLog import CaptureLog
+from View.TrainingConsole import TrainingConsole, ConsoleCapture
 
 class SPTI(QWidget):
     
@@ -44,9 +45,23 @@ class SPTI(QWidget):
         self.processed_data = False
         self.threadpool = QThreadPool()
         self.model_select = None
+        
+        # Configurar captura de console
+        self.console_capture = None
+        self._original_stdout = sys.stdout
+        self._original_stderr = sys.stderr
+    
+    def closeEvent(self, event):
+        """Garantir que streams sejam restaurados ao fechar"""
+        try:
+            sys.stdout = self._original_stdout
+            sys.stderr = self._original_stderr
+        except:
+            pass
+        event.accept()
 
     def initUI(self):
-        self.setWindowTitle('Sistema SPTI')
+        self.setWindowTitle('Central de Treinamento de Modelos (Horus-CDS)')
         self.setGeometry(100, 100, 1713, 896)
 
         self.scroll_area = QScrollArea()
@@ -145,6 +160,10 @@ class SPTI(QWidget):
         label_progress_layout.setAlignment(Qt.AlignCenter)
 
         self.progress_bar = QProgressBar()
+        
+        # Console de treinamento
+        self.training_console = TrainingConsole()
+        self.training_console.setVisible(False)  # Inicialmente oculto
 
        
 
@@ -166,6 +185,7 @@ class SPTI(QWidget):
         self.main_layout.addLayout(integration_rb_label)
         self.main_layout.addLayout(label_progress_layout)
         self.main_layout.addWidget(self.progress_bar)
+        self.main_layout.addWidget(self.training_console)  # Console de treinamento
         self.main_layout.addLayout(label_train_layout)
         self.main_layout.addLayout(table_layout)
 
@@ -303,6 +323,22 @@ class SPTI(QWidget):
     def update_progress(self, progress):
         progress_int = int(progress * 100)
         self.progress_bar.setValue(progress_int)
+        
+        # Quando treinamento finalizar (100%), restaurar stdout/stderr
+        if progress >= 1.0:
+            try:
+                if hasattr(self, '_original_stdout'):
+                    sys.stdout = self._original_stdout
+                if hasattr(self, '_original_stderr'):
+                    sys.stderr = self._original_stderr
+                
+                if hasattr(self, 'training_console'):
+                    self.training_console.log_signal.emit("")
+                    self.training_console.log_signal.emit("=== Treinamento finalizado ===")
+                
+                self.console_capture = None
+            except Exception as e:
+                print(f"Erro ao restaurar streams: {e}")
 
     def start_training(self):
         if not hasattr(self, 'train_data') or self.train_data is None:
@@ -315,6 +351,24 @@ class SPTI(QWidget):
             return
 
         QMessageBox.information(self, "Treinamento", f"Treinamento iniciado com o modelo {selected_model}.")
+        
+        # Ativar console e iniciar captura de logs
+        try:
+            self.training_console.setVisible(True)
+            self.training_console.start_capture()
+            
+            # Salvar referencias originais
+            if not hasattr(self, '_original_stdout'):
+                self._original_stdout = sys.stdout
+                self._original_stderr = sys.stderr
+            
+            # Redirecionar stdout e stderr para o console
+            self.console_capture = ConsoleCapture(self.training_console, self._original_stdout)
+            sys.stdout = self.console_capture
+            sys.stderr = self.console_capture
+        except Exception as e:
+            print(f"Erro ao configurar console: {e}")
+        
         self.train_model(selected_model)
 
     def on_radio_button_toggled(self):
@@ -378,7 +432,21 @@ class SPTI(QWidget):
         self.train_thread.update_prediction_chart.connect(self.plot_prediction)
         self.train_thread.update_metrics_chart.connect(self.plot_metrics)
         self.train_thread.update_metrics_chart_boxplot.connect(self.update_prediction_boxplot)
+        self.train_thread.finished.connect(self.on_training_finished)
         self.train_thread.start()
+    
+    def on_training_finished(self):
+        """Callback quando treinamento finaliza (com sucesso ou erro)"""
+        try:
+            # Restaurar streams
+            sys.stdout = self._original_stdout
+            sys.stderr = self._original_stderr
+            
+            if hasattr(self, 'training_console'):
+                self.training_console.log_signal.emit("")
+                self.training_console.log_signal.emit("=== Processo finalizado ===")
+        except Exception as e:
+            print(f"Erro no callback de finalizacao: {e}")
 
 
 

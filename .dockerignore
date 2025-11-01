@@ -1,0 +1,45 @@
+# Arquivos de ambiente virtual Python
+venv/
+venv-Horus/
+env/
+ENV/
+
+# Arquivos de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Diretórios de distribuição
+build/
+dist/
+*.egg-info/
+
+# Logs
+logs/
+*.log
+
+# Modelos treinados (opcional - descomentar se não quiser versionar)
+# root/Linux/ModelosComplilados/
+# root/API/models/*.h5
+# root/API/models/*.keras
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Dados temporários
+*.tmp
+*.temp

@@ -67,17 +67,145 @@ A execução da ferramenta não apresenta riscos significativos, porém:
 
 ### 3. **Instalação**
 
-- **Passo 1**: Clone o repositório do projeto:
+O Horus-CDS pode ser instalado de três formas diferentes, dependendo das necessidades e preferências do ambiente de desenvolvimento ou produção.
 
-  ```bash
-  git clone https://github.com/wesleiferreira98/Horus-CDS.git
-  cd Horus-CDS
-  ```
-- **Passo 2**: Instale as dependências:
+#### 3.1. Instalação com Ambiente Virtual Python (venv)
 
-  ```bash
-  pip install -r requirements.txt
-  ```
+Esta é a forma recomendada para desenvolvimento local.
+
+**Passo 1**: Clone o repositório do projeto:
+
+```bash
+git clone https://github.com/wesleiferreira98/Horus-CDS.git
+cd Horus-CDS
+```
+
+**Passo 2**: Crie e ative o ambiente virtual:
+
+```bash
+# Criar ambiente virtual
+python3.12 -m venv venv-Horus
+
+# Ativar ambiente virtual (Linux/macOS)
+source venv-Horus/bin/activate
+
+# Ativar ambiente virtual (Windows)
+venv-Horus\Scripts\activate
+```
+
+**Passo 3**: Instale as dependências:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+**Passo 4**: Verifique a instalação:
+
+```bash
+python --version  # Deve exibir Python 3.12.x
+pip list  # Lista todas as dependências instaladas
+```
+
+#### 3.2. Instalação Tradicional (Sistema Global)
+
+Para instalação direta no sistema, sem ambiente virtual.
+
+**Passo 1**: Clone o repositório:
+
+```bash
+git clone https://github.com/wesleiferreira98/Horus-CDS.git
+cd Horus-CDS
+```
+
+**Passo 2**: Instale as dependências globalmente:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+**Nota**: Esta abordagem não é recomendada pois pode causar conflitos com outras instalações Python no sistema.
+
+#### 3.3. Instalação com Docker (Recomendado para Produção)
+
+Docker oferece isolamento completo e facilita o deployment em diferentes ambientes.
+
+**Pré-requisitos**:
+
+- Docker Engine 20.10 ou superior
+- Docker Compose 2.0 ou superior
+
+**Passo 1**: Clone o repositório:
+
+```bash
+git clone https://github.com/wesleiferreira98/Horus-CDS.git
+cd Horus-CDS
+```
+
+**Passo 2**: Construa as imagens Docker:
+
+```bash
+docker-compose build
+```
+
+**Passo 3**: Inicie os containers:
+
+```bash
+docker-compose up -d
+```
+
+**Passo 4**: Verifique o status dos containers:
+
+```bash
+docker-compose ps
+```
+
+**Passo 5**: Visualize os logs (opcional):
+
+```bash
+# Logs da API
+docker-compose logs -f horus-api
+
+# Logs da interface web
+docker-compose logs -f horus-web
+```
+
+**Passo 6**: Parar os containers:
+
+```bash
+docker-compose down
+```
+
+**Comandos úteis do Docker**:
+
+```bash
+# Reconstruir após mudanças no código
+docker-compose up -d --build
+
+# Acessar shell dentro do container
+docker exec -it horus-cds-api bash
+
+# Remover containers, redes e volumes
+docker-compose down -v
+```
+
+#### 3.4. Verificação da Instalação
+
+Independentemente do método escolhido, verifique se a instalação foi bem-sucedida:
+
+**Para instalação com venv ou tradicional**:
+
+```bash
+python -c "import tensorflow; print(tensorflow.__version__)"
+python -c "import PyQt5; print('PyQt5 instalado com sucesso')"
+```
+
+**Para instalação com Docker**:
+
+```bash
+docker exec horus-cds-api python -c "import tensorflow; print(tensorflow.__version__)"
+```
 
 ### Teste Minimo
 
@@ -103,50 +231,101 @@ A resposta esperada será:
 
 ### Experimento 1. **Execução da API**
 
-- **Passo 1**: Execute o arquivo da API **com privilégios de superusuário** (o Scapy requer acesso RAW à interface de rede):
-  ```bash
-  cd root/API
-  sudo python app.py
-  ```
+#### 1.1. Execução com Ambiente Virtual ou Instalação Tradicional
 
-**Nota** 
+**Passo 1**: Ative o ambiente virtual (se estiver usando venv):
+
+```bash
+source venv-Horus/bin/activate  # Linux/macOS
+# ou
+venv-Horus\Scripts\activate  # Windows
+```
+
+**Passo 2**: Execute o arquivo da API **com privilégios de superusuário** (o Scapy requer acesso RAW à interface de rede):
+
+```bash
+cd root/API
+sudo python app.py
+```
+
+**Nota sobre permissões**:
 
 Se preferir evitar usar `sudo`, configure as permissões do Python com:
 
-```
+```bash
 sudo setcap cap_net_raw=eip $(which python3)
 ```
 
-Após isso, execute normalmente sem `sudo`
+Após isso, execute normalmente sem `sudo`:
+
+```bash
+python app.py
+```
+
+#### 1.2. Execução com Docker
+
+**Passo 1**: Certifique-se de que os containers estão em execução:
+
+```bash
+docker-compose up -d
+```
+
+**Passo 2**: A API estará disponível automaticamente em `http://localhost:5000`
+
+**Passo 3**: Para visualizar logs em tempo real:
+
+```bash
+docker-compose logs -f horus-api
+```
+
+**Nota**: No modo Docker, o sistema opera em modo simulação por padrão, não requerendo permissões especiais de rede.
 
 ### Experimento 2. **Interface Gráfica (Python Qt5)**
 
-**Descrição**: A interface gráfica desenvolvida em PyQt5 no Hórus-CDS tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
+**Descrição**: A interface gráfica desenvolvida em PyQt5 no Horus-CDS tem como principal objetivo facilitar o processo de treinamento dos modelos utilizados na API. Ela oferece uma série de funcionalidades intuitivas, como botões que permitem ao usuário carregar conjuntos de dados, iniciar o treinamento dos modelos, visualizar métricas de desempenho de treinamentos anteriores e monitorar dados de logs de maneira interativa. Essa interface foi implementada como uma funcionalidade adicional, visando simplificar a experiência do usuário e otimizar o processo de ajuste dos modelos.
 
 **Principais Funcionalidades**:
 
 - Exibição de uma barra de progresso que exibe o estado atual treinamento do modelo escolhido
-- Exibe uma planilha com as informações do data set processado.
-- Exibe pop-up para os usuário onde é informado o tempo de otimização do modelo e o progresso de carregamento do data set.
-- Ao final do treinamento são exibidos gráficos de métricas e gráficos que comparam os valores reais e previstos pelo modelo.
+- Exibe uma planilha com as informações do data set processado
+- Exibe pop-up para os usuário onde é informado o tempo de otimização do modelo e o progresso de carregamento do data set
+- Console integrado que exibe logs de treinamento em tempo real
+- Ao final do treinamento são exibidos gráficos de métricas e gráficos que comparam os valores reais e previstos pelo modelo
 
-**Para iniciar o treinamento faça os seguintes passos**
+**Procedimento para iniciar o treinamento**:
 
 1. Clique em Selecionar Data Set
-2. Vá em na pasta  **DadosReais** e selecione  o arquivo **dados_normalizados_smartgrid.csv**
-3. Após isso  aguarde o carregamento da base de dados
-4. selecione qual modelo deseja treinar e clique em iniciar treinamento
+2. Navegue até a pasta **DadosReais** e selecione o arquivo **dados_normalizados_smartgrid.csv**
+3. Aguarde o carregamento da base de dados
+4. Selecione qual modelo deseja treinar e clique em iniciar treinamento
+5. Acompanhe o progresso através do console integrado e da barra de progresso
 
-**Execução**:
+#### 2.1. Execução com Ambiente Virtual ou Instalação Tradicional
+
+**Passo 1**: Ative o ambiente virtual (se estiver usando venv):
+
+```bash
+source venv-Horus/bin/activate  # Linux/macOS
+# ou
+venv-Horus\Scripts\activate  # Windows
+```
+
+**Passo 2**: Execute a interface gráfica:
 
 ```bash
 cd root/Linux
 python main.py
 ```
 
+#### 2.2. Limitações do Docker
+
+**Nota importante**: A interface gráfica PyQt5 não está disponível via Docker devido às limitações de exibição gráfica em containers. Para utilizar esta funcionalidade, é necessário executar localmente com ambiente virtual ou instalação tradicional.
+
 #### Imagens do Hórus-CDS (PyQt5)
 
-![1729628601151](image/README/1729628601151.png)
+![1762038039413](image/README/1762038039413.png)
+
+![1762037974214](image/README/1762037974214.png)
 
 Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
 
@@ -190,38 +369,73 @@ Todos os modelos utilizados no Hórus-CDS seguem um fluxo padronizado para trein
 
 Essa padronização não só facilita a manutenção do Hórus-CDS, como também permite a adição de novos modelos de forma eficiente, utilizando a mesma infraestrutura de treinamento e avaliação.
 
-### Experimento 3. **Parte Web do Hórus-CDS**
+### Experimento 3. **Parte Web do Horus-CDS**
 
-- **Descrição**: O **dashboard web** do Hórus-CDS foi desenvolvido utilizando as tecnologias **HTML**, **CSS** e **JavaScript**, em conjunto com o **Flask**  para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
-- **Estrutura**:
+**Descrição**: O dashboard web do Horus-CDS foi desenvolvido utilizando as tecnologias HTML, CSS e JavaScript, em conjunto com o Flask para a comunicação entre o front-end e o back-end. A interface web permite monitorar as requisições e predições em tempo real, com gráficos e tabelas interativas para uma visão completa do status da rede.
 
-  - **HTML**: A estrutura básica do dashboard é montada em HTML, com elementos que incluem gráficos, tabelas de requisições e botões de controle.
-  - **CSS**: Responsável pelo design e layout da página, garantindo que os componentes sejam apresentados de maneira clara e organizada.
-  - **JavaScript**: Utilizado para manipular os dados em tempo real, atualizando os gráficos e a tabela de requisições conforme os pacotes são processados.
-  - **API**: A comunicação entre o front-end (dashboard web) e o back-end (modelo de predição) é feita por meio de chamadas à API REST, que retorna os resultados da análise de pacotes.
-- **Funcionalidades**:
+**Estrutura**:
 
-  - **Exibição em tempo real**: O dashboard exibe gráficos que mostram as predições de pacotes de rede em tempo real, classificando-os como "Ataque" ou "Permitido".
-  - **Tabela de requisições**: Mostra os detalhes de cada requisição, incluindo o IP de origem e destino, data/hora e status de segurança.
-  - **Gráficos interativos**: O gráfico de predições é atualizado dinamicamente, fornecendo uma visão clara das tendências e anomalias detectadas pelo modelo.
-- **Arquitetura do Front-End**:
+- **HTML**: A estrutura básica do dashboard é montada em HTML, com elementos que incluem gráficos, tabelas de requisições e botões de controle
+- **CSS**: Responsável pelo design e layout da página, garantindo que os componentes sejam apresentados de maneira clara e organizada
+- **JavaScript**: Utilizado para manipular os dados em tempo real, atualizando os gráficos e a tabela de requisições conforme os pacotes são processados
+- **API**: A comunicação entre o front-end (dashboard web) e o back-end (modelo de predição) é feita por meio de chamadas à API REST, que retorna os resultados da análise de pacotes
 
-  - **HTML** (em `templates/`): Define a estrutura da página.
-  - **CSS** (em `static/css/`): Controla o estilo e layout do dashboard.
-  - **JavaScript** (em `static/js/`): Atualiza os dados em tempo real, conecta-se à API e renderiza os gráficos.
-  - **Flask/FastAPI**: Serve o conteúdo da aplicação e fornece os dados necessários para o front-end.
-- **Como Executar**:
+**Funcionalidades**:
 
-  ```bash
-  cd root/web
-  python run_web.py
-  ```
+- **Exibição em tempo real**: O dashboard exibe gráficos que mostram as predições de pacotes de rede em tempo real, classificando-os como "Ataque" ou "Permitido"
+- **Tabela de requisições**: Mostra os detalhes de cada requisição, incluindo o IP de origem e destino, data/hora e status de segurança
+- **Gráficos interativos**: O gráfico de predições é atualizado dinamicamente, fornecendo uma visão clara das tendências e anomalias detectadas pelo modelo
 
-  - **Acesso**: Após rodar o comando, abra um navegador e acesse `http://localhost:5001` para visualizar o dashboard.
+**Arquitetura do Front-End**:
 
-  #### Imagens do Dashboard web
+- **HTML** (em `templates/`): Define a estrutura da página
+- **CSS** (em `static/css/`): Controla o estilo e layout do dashboard
+- **JavaScript** (em `static/js/`): Atualiza os dados em tempo real, conecta-se à API e renderiza os gráficos
+- **Flask**: Serve o conteúdo da aplicação e fornece os dados necessários para o front-end
+
+#### 3.1. Execução com Ambiente Virtual ou Instalação Tradicional
+
+**Passo 1**: Ative o ambiente virtual (se estiver usando venv):
+
+```bash
+source venv-Horus/bin/activate  # Linux/macOS
+# ou
+venv-Horus\Scripts\activate  # Windows
+```
+
+**Passo 2**: Execute o servidor web:
+
+```bash
+cd root/web
+python run_web.py
+```
+
+**Passo 3**: Acesse o dashboard:
+
+Abra um navegador e acesse `http://localhost:5001` para visualizar o dashboard.
+
+#### 3.2. Execução com Docker
+
+**Passo 1**: Certifique-se de que os containers estão em execução:
+
+```bash
+docker-compose up -d
+```
+
+**Passo 2**: Acesse o dashboard:
+
+O dashboard web estará disponível automaticamente em `http://localhost:5001`
+
+**Passo 3**: Para visualizar logs em tempo real:
+
+```bash
+docker-compose logs -f horus-web
+```
+
+#### Imagens do Dashboard web
 
   ![1737125366674](image/README/1737125366674.png)
+
 - Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
 
   ![1737075365354](image/README/1737075365354.png)
@@ -242,24 +456,38 @@ Essa padronização não só facilita a manutenção do Hórus-CDS, como também
 
 ### **Reivindicação #1: Monitoramento em Tempo Real**
 
-- **Objetivo**: Testar a eficácia do Hórus-CDS no ambiente de produção.
-- **Passos**:
+**Objetivo**: Testar a eficácia do Horus-CDS no ambiente de produção.
 
-  1. Iniciar a API do sistema.
-  2. Simular tráfego de rede com requisições suspeitas e normais.
-  3. Analisar a classificação dos pacotes no dashboard web.
-  4. **Atenção** : A execução da API exige permissões de superusuário devido ao uso do Scapy. Ignorar isso resultará em erros de permissã
-- **Comando**:
+**Passos**:
 
-  ```bash
-  cd root/API
-  sudo python app.py
-  ```
-- **Resultado esperado**:
+1. Iniciar a API do sistema
+2. Simular tráfego de rede com requisições suspeitas e normais
+3. Analisar a classificação dos pacotes no dashboard web
+4. **Atenção**: A execução da API exige permissões de superusuário devido ao uso do Scapy. Ignorar isso resultará em erros de permissão
 
-  - A interface web exibe predições em tempo real.
-  - Ataques são corretamente identificados.
-  - Para executar a a interface web basta seguir os passos do **Experimento 3**
+**Execução com Ambiente Virtual**:
+
+```bash
+cd root/API
+sudo python app.py
+```
+
+**Execução com Docker**:
+
+```bash
+docker-compose up -d
+```
+
+**Resultado esperado**:
+
+- A interface web exibe predições em tempo real
+- Ataques são corretamente identificados
+- Para executar a interface web basta seguir os passos do **Experimento 3**
+
+**Acesso ao Dashboard**:
+
+- Ambiente Virtual: `http://localhost:5001`
+- Docker: `http://localhost:5001`
 
 ---
 
