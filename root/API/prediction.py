@@ -4,9 +4,21 @@ from tensorflow.keras.models import load_model # type: ignore
 import requests
 import json
 
+# Importar TCN para carregar modelos personalizados
+try:
+    from tcn import TCN
+except ImportError:
+    print("Aviso: Biblioteca 'tcn' não encontrada. Modelos TCN não poderão ser carregados.")
+    TCN = None
+
 class Prediction:
     def __init__(self, model_path, scaler_path):
-        self.model = load_model(model_path)
+        # Carregar modelo com custom_objects se for TCN
+        if 'tcn' in model_path.lower() and TCN is not None:
+            self.model = load_model(model_path, custom_objects={'TCN': TCN})
+        else:
+            self.model = load_model(model_path)
+        
         self.scaler = joblib.load(scaler_path)
         self.input_shape = self.model.input_shape
 

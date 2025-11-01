@@ -5,8 +5,11 @@ import os
 import logging
 from flask import send_file,request,jsonify # type: ignore
 
+# Definir diretório base
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Configuração do diretório de logs
-LOG_DIR = './logs'
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)
 
 # Configuração do logging
@@ -82,26 +85,33 @@ class Logger:
                 })  # Adicione um log para inconclusivos
 
         # Processar o arquivo predictions_log.txt
-        pred_log_path = './logs/predictions_log.txt'  # Supondo que esse arquivo exista
-        with open(pred_log_path, 'r') as file:
-            pred_lines = file.readlines()
+        pred_log_path = os.path.join(LOG_DIR, 'predictions_log.txt')
+        if not os.path.exists(pred_log_path):
+            # Se não existe, retornar listas vazias
+            normalized_predictions = []
+            desnormalized_predictions = []
+            resultados = []
+            pred_lines = []
+        else:
+            with open(pred_log_path, 'r') as file:
+                pred_lines = file.readlines()
 
-        # Aplicar o filtro no arquivo predictions_log.txt
-        if filtro == 'recentes':
-            pred_lines = pred_lines[-10:]  # Pegar as 10 predições mais recentes
-        elif filtro == 'antigos':
-            pred_lines = pred_lines[:10]  # Pegar as 10 primeiras predições
-        # No caso de 'todos', não filtramos (padrão)
+            # Aplicar o filtro no arquivo predictions_log.txt
+            if filtro == 'recentes':
+                pred_lines = pred_lines[-10:]  # Pegar as 10 predições mais recentes
+            elif filtro == 'antigos':
+                pred_lines = pred_lines[:10]  # Pegar as 10 primeiras predições
+            # No caso de 'todos', não filtramos (padrão)
 
-        # Processar as predições filtradas
-        for line in pred_lines:
-            try:
-                normalized_prediction, desnormalized_prediction, resultado = line.strip().split(',')
-                normalized_predictions.append(float(normalized_prediction))
-                desnormalized_predictions.append(float(desnormalized_prediction))
-                resultados.append(resultado)
-            except ValueError:
-                continue  # Pular linhas mal formatadas
+            # Processar as predições filtradas
+            for line in pred_lines:
+                try:
+                    normalized_prediction, desnormalized_prediction, resultado = line.strip().split(',')
+                    normalized_predictions.append(float(normalized_prediction))
+                    desnormalized_predictions.append(float(desnormalized_prediction))
+                    resultados.append(resultado)
+                except ValueError:
+                    continue  # Pular linhas mal formatadas
 
         # Criar um dicionário com os dados coletados de packet_logs.txt e predictions_log.txt
         data = {
@@ -128,7 +138,20 @@ class Logger:
         resultados = []
 
         # Caminho do arquivo de log de predições
-        log_file_path = './logs/predictions_log.txt'  # Ajuste conforme o caminho correto
+        log_file_path = os.path.join(LOG_DIR, 'predictions_log.txt')
+
+        # Verificar se o arquivo existe
+        if not os.path.exists(log_file_path):
+            # Retornar uma imagem vazia ou mensagem
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.text(0.5, 0.5, 'Nenhuma predição registrada ainda', 
+                    ha='center', va='center', fontsize=14)
+            ax.axis('off')
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            plt.close()
+            return send_file(buf, mimetype='image/png')
 
         # Ler as últimas 10 linhas do arquivo de log
         with open(log_file_path, 'r') as file:
@@ -196,7 +219,21 @@ class Logger:
         pattern_inconclusivo = re.compile(r"Pacote não TCP")
 
         # Processar o arquivo de log
-        log_file_path = './logs/packet_logs.txt'  # O caminho onde o arquivo de log está armazenado no servidor
+        log_file_path = self.log_file_path
+        
+        # Verificar se o arquivo existe
+        if not os.path.exists(log_file_path):
+            # Retornar gráfico vazio
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.text(0.5, 0.5, 'Nenhum log registrado ainda', 
+                    ha='center', va='center', fontsize=14)
+            ax.axis('off')
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            plt.close()
+            return send_file(buf, mimetype='image/png')
+        
         with open(log_file_path, 'r') as file:
             for line in file:
                 if pattern_ataque.search(line):
