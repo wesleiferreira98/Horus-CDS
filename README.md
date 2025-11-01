@@ -20,25 +20,26 @@ Os selos considerados para o Hórus-CDS são:
 
 Este repositório contém documentação completa para instalação e uso do sistema:
 
-### Guias de Início Rápido
-* **[QUICKSTART.md](QUICKSTART.md)** - Guia rápido de instalação e primeiros passos (recomendado para iniciantes)
-
 ### Documentação Principal
-* **[README.md](README.md)** - Documentação principal do projeto com instalação e experimentos
-* **[CUDA_INSTALLATION.md](CUDA_INSTALLATION.md)** - Guia completo de instalação CUDA e cuDNN para aceleração GPU (20KB)
-* **[DOCKER.md](DOCKER.md)** - Guia de deployment com Docker e Docker Compose incluindo suporte GPU (8KB)
+* **[README.md](README.md)** - Documentação principal do projeto
+* **[docs/QUICKSTART.md](docs/QUICKSTART.md)** - Guia rápido de instalação e primeiros passos (recomendado para iniciantes)
+* **[docs/CUDA_INSTALLATION.md](docs/CUDA_INSTALLATION.md)** - Guia completo de instalação CUDA e cuDNN para aceleração GPU
+* **[docs/DOCKER.md](docs/DOCKER.md)** - Guia de deployment com Docker e Docker Compose incluindo suporte GPU
 * **[root/API/README_API.md](root/API/README_API.md)** - Documentação específica da API REST
 
-### Ferramentas e Configuração
-* **[install.sh](install.sh)** - Script de instalação automática para Linux/macOS (interativo)
-* **[install.bat](install.bat)** - Script de instalação automática para Windows (interativo)
-* **[test_gpu_setup.py](test_gpu_setup.py)** - Script de validação automática da configuração GPU/CUDA
+### Scripts de Instalação e Configuração
+* **[scripts/install.sh](scripts/install.sh)** - Script de instalação automática para Linux/macOS (interativo)
+* **[scripts/install.bat](scripts/install.bat)** - Script de instalação automática para Windows (interativo)
+* **[scripts/test_gpu_setup.py](scripts/test_gpu_setup.py)** - Script de validação automática da configuração GPU/CUDA
+
+### Configuração Docker
 * **[docker-compose.yml](docker-compose.yml)** - Configuração Docker padrão (CPU-only)
 * **[docker-compose-gpu.yml](docker-compose-gpu.yml)** - Configuração Docker com suporte GPU
 
 ### Documentação Complementar
-* **[CHANGELOG_CUDA.md](CHANGELOG_CUDA.md)** - Registro detalhado das adições de documentação CUDA
-* **[SUMMARY_CUDA_DOCS.md](SUMMARY_CUDA_DOCS.md)** - Sumário executivo da documentação GPU/CUDA
+* **[docs/INSTALL_SCRIPTS.md](docs/INSTALL_SCRIPTS.md)** - Documentação detalhada dos scripts de instalação
+* **[docs/CHANGELOG_CUDA.md](docs/CHANGELOG_CUDA.md)** - Registro detalhado das adições de documentação CUDA
+* **[docs/SUMMARY_CUDA_DOCS.md](docs/SUMMARY_CUDA_DOCS.md)** - Sumário executivo da documentação GPU/CUDA
 
 ## **Estrutura do Repositório**
 
@@ -64,7 +65,7 @@ Este repositório contém documentação completa para instalação e uso do sis
 
 ### Requisitos de Software:
 
-* **Sistema Operacional**: 
+* **Sistema Operacional**:
   - Linux: Ubuntu 22.04/24.04, Fedora 38/39/40 (recomendado para GPU)
   - Windows: 10 (versão 1909+) ou 11
   - macOS: 10.13+ (suporte GPU limitado)
@@ -94,9 +95,10 @@ Principais bibliotecas utilizadas:
 
 Para utilizar aceleração por GPU durante o treinamento dos modelos, é necessário instalar os drivers NVIDIA CUDA e cuDNN. O sistema foi testado com CUDA 12.6 e cuDNN 9.5.1.
 
-Consulte o guia completo de instalação: [CUDA_INSTALLATION.md](CUDA_INSTALLATION.md)
+Consulte o guia completo de instalação: [docs/CUDA_INSTALLATION.md](docs/CUDA_INSTALLATION.md)
 
 **Requisitos mínimos**:
+
 * GPU NVIDIA com Compute Capability 3.5 ou superior
 * Driver NVIDIA 525.60.13 ou superior
 * CUDA Toolkit 12.3 ou superior
@@ -120,25 +122,32 @@ O Horus-CDS pode ser instalado de três formas diferentes, dependendo das necess
 Para instalação guiada com interface interativa, utilize os scripts de instalação automática:
 
 **Linux / macOS**:
+
 ```bash
 git clone https://github.com/wesleiferreira98/Horus-CDS.git
 cd Horus-CDS
-./install.sh
+./scripts/install.sh
 ```
 
 **Windows**:
+
 ```cmd
 git clone https://github.com/wesleiferreira98/Horus-CDS.git
 cd Horus-CDS
-install.bat
+scripts\install.bat
 ```
 
 O instalador apresentará três opções:
+
 1. Instalação Global (sem venv, sem Docker) - Não recomendado
 2. Instalação com Ambiente Virtual (venv-Horus) - **Recomendado**
 3. Instalação com Docker - Recomendado para produção
 
 O script verifica automaticamente as dependências, detecta GPU NVIDIA (se disponível) e configura o ambiente apropriado.
+
+![1762041092529](image/README/1762041092529.png)
+
+Figura 1: Tela de instalação rápida do Hórus-CDS
 
 ---
 
@@ -214,7 +223,7 @@ Docker oferece isolamento completo e facilita o deployment em diferentes ambient
 - Docker Compose 2.0 ou superior
 - NVIDIA Container Toolkit (apenas para uso com GPU)
 
-**Nota sobre GPU**: Para utilizar GPU dentro de containers Docker, é necessário instalar o NVIDIA Container Toolkit. Consulte a documentação completa em [CUDA_INSTALLATION.md](CUDA_INSTALLATION.md) e [DOCKER.md](DOCKER.md).
+**Nota sobre GPU**: Para utilizar GPU dentro de containers Docker, é necessário instalar o NVIDIA Container Toolkit. Consulte a documentação completa em [docs/CUDA_INSTALLATION.md](docs/CUDA_INSTALLATION.md) e [docs/DOCKER.md](docs/DOCKER.md).
 
 **Passo 1**: Clone o repositório:
 
@@ -293,10 +302,11 @@ python -c "import PyQt5; print('PyQt5 instalado com sucesso')"
 Execute o script de teste completo que verifica Python, TensorFlow, CUDA, GPU e todas as bibliotecas:
 
 ```bash
-python test_gpu_setup.py
+python scripts/test_gpu_setup.py
 ```
 
 Este script irá:
+
 - Verificar versão do Python
 - Testar instalação do TensorFlow
 - Detectar suporte CUDA
@@ -308,7 +318,7 @@ Este script irá:
 
 ```bash
 docker exec horus-cds-api python -c "import tensorflow; print(tensorflow.__version__)"
-docker exec horus-cds-api python test_gpu_setup.py
+docker exec horus-cds-api python scripts/test_gpu_setup.py
 ```
 
 ### Teste Minimo
