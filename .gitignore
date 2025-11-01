@@ -42,6 +42,7 @@ prediction_plot.jpg
 
 
 # Distribution / packaging
+.vscode/
 .Python
 build/
 develop-eggs/
