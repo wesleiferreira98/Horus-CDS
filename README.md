@@ -325,29 +325,31 @@ python main.py
 
 ![1762038039413](image/README/1762038039413.png)
 
+Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
+
 ![1762037974214](image/README/1762037974214.png)
 
-Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
+Figura 2: Interfaçe inicial do Hórus-CDS pós treinamento. Fonte: Dos autores
 
 ![1729628644600](image/README/1729628644600.png)
 
-Figura 2: Barra de progresso do carregamento do data set. Fonte: Dos autores
+Figura 3: Barra de progresso do carregamento do data set. Fonte: Dos autores
 
 ![1729628804168](image/README/1729628804168.png)
 
-Figura 3: Planinha do Data set. Fonte: Dos autores
+Figura 4: Planinha do Data set. Fonte: Dos autores
 
 ![1729628949486](image/README/1729628949486.png)
 
-Figura 4: Confirmação do Modelo escolhido. Fonte: Dos autores
+Figura 5: Confirmação do Modelo escolhido. Fonte: Dos autores
 
 ![1729629009966](image/README/1729629009966.png)
 
-Figura 5: Tempo estimado de otimização do modelo. Fonte: Dos autores
+Figura 6: Tempo estimado de otimização do modelo. Fonte: Dos autores
 
 ![1729631245388](image/README/1729631245388.png)
 
-Figura 6: Progresso do teste. Fonte: Dos autores
+Figura 7: Progresso do teste. Fonte: Dos autores
 
 ![1729629159083](image/README/1729629159083.png)
 
@@ -436,19 +438,19 @@ docker-compose logs -f horus-web
 
   ![1737125366674](image/README/1737125366674.png)
 
-- Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
+- Figura 8: Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
 
   ![1737075365354](image/README/1737075365354.png)
-- Gráficos do Painel do Hórus-CDS. Fonte: Dos autores.
+- Figura 8: Gráficos do Painel do Hórus-CDS. Fonte: Dos autores.
 
   ![1729864786627](image/README/1729864786627.png)
-- Planilha com informações detalhada dos pacotes: Fonte dos Autores
+- Figura 10: Planilha com informações detalhada dos pacotes: Fonte dos Autores
 
   ![1737125445590](image/README/1737125445590.png)![1737075549620](image/README/1737075549620.png)
-- Dashboard acessado pelo Celular: Fonte dos Autores
+- Figura 11: Dashboard acessado pelo Celular: Fonte dos Autores
 
   ![1729865640312](image/README/1729865640312.png)
-- Planilha vista pelo Celuar Fonte dos Autores
+- Figura 12: Planilha vista pelo Celuar Fonte dos Autores
 
 ---
 
