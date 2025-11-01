@@ -1,0 +1,55 @@
+# Git attributes for Horus-CDS repository
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Documents
+*.md text
+*.txt text
+*.csv text
+
+# Python files
+*.py text
+*.pyx text
+*.pyi text
+
+# Config files
+*.json text
+*.yml text
+*.yaml text
+*.toml text
+*.ini text
+*.cfg text
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Batch scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Docker
+Dockerfile text
+*.dockerignore text
+docker-compose*.yml text
+
+# Models (binary)
+*.h5 binary
+*.keras binary
+*.pkl binary
+*.joblib binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.rar binary

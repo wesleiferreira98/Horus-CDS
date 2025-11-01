@@ -16,6 +16,30 @@ Os selos considerados para o Hórus-CDS são:
 * **Funcionais (SeloF)**: A ferramenta pode ser executada conforme documentado.
 * **Experimentos Reprodutíveis (SeloR)**: Os experimentos podem ser replicados seguindo as instruções fornecidas
 
+## Documentação
+
+Este repositório contém documentação completa para instalação e uso do sistema:
+
+### Guias de Início Rápido
+* **[QUICKSTART.md](QUICKSTART.md)** - Guia rápido de instalação e primeiros passos (recomendado para iniciantes)
+
+### Documentação Principal
+* **[README.md](README.md)** - Documentação principal do projeto com instalação e experimentos
+* **[CUDA_INSTALLATION.md](CUDA_INSTALLATION.md)** - Guia completo de instalação CUDA e cuDNN para aceleração GPU (20KB)
+* **[DOCKER.md](DOCKER.md)** - Guia de deployment com Docker e Docker Compose incluindo suporte GPU (8KB)
+* **[root/API/README_API.md](root/API/README_API.md)** - Documentação específica da API REST
+
+### Ferramentas e Configuração
+* **[install.sh](install.sh)** - Script de instalação automática para Linux/macOS (interativo)
+* **[install.bat](install.bat)** - Script de instalação automática para Windows (interativo)
+* **[test_gpu_setup.py](test_gpu_setup.py)** - Script de validação automática da configuração GPU/CUDA
+* **[docker-compose.yml](docker-compose.yml)** - Configuração Docker padrão (CPU-only)
+* **[docker-compose-gpu.yml](docker-compose-gpu.yml)** - Configuração Docker com suporte GPU
+
+### Documentação Complementar
+* **[CHANGELOG_CUDA.md](CHANGELOG_CUDA.md)** - Registro detalhado das adições de documentação CUDA
+* **[SUMMARY_CUDA_DOCS.md](SUMMARY_CUDA_DOCS.md)** - Sumário executivo da documentação GPU/CUDA
+
 ## **Estrutura do Repositório**
 
 * **`root/Linux/`** - Contém os scripts para a execução da interface PyQt5.
@@ -30,17 +54,25 @@ Os selos considerados para o Hórus-CDS são:
 
 ### Requisitos de Hardware:
 
-* Processador: Intel Core i5 ou superior
-* Memória RAM: 8GB (recomendado 16GB)
-* Espaço em disco: 10GB livres
-* GPU: Opcional para aceleração de treinamento
+* **Processador**: Intel Core i5 ou superior (ou AMD Ryzen 5)
+* **Memória RAM**: 8GB mínimo (16GB recomendado)
+* **Espaço em disco**: 10GB livres
+* **GPU (Opcional)**: NVIDIA GPU com suporte CUDA para aceleração de treinamento
+  - Exemplos: GeForce RTX série 20xx/30xx/40xx, GTX série 16xx, Tesla, Quadro
+  - Compute Capability 3.5 ou superior
+  - 4GB de VRAM mínimo (6GB ou mais recomendado)
 
 ### Requisitos de Software:
 
-* **Sistema Operacional**: Linux Fedora 40 ou superior, Windows 10 ou 11 ou macOS
-* **Python 3.12**
-* **Frameworks Web**: Flask ou FastAPI para a API REST
-* **Front-end**: HTML, CSS, JavaScript
+* **Sistema Operacional**: 
+  - Linux: Ubuntu 22.04/24.04, Fedora 38/39/40 (recomendado para GPU)
+  - Windows: 10 (versão 1909+) ou 11
+  - macOS: 10.13+ (suporte GPU limitado)
+* **Python**: 3.12 (testado com 3.12.12)
+* **CUDA Toolkit**: 12.3+ (12.6 recomendado) - apenas para GPU
+* **cuDNN**: 9.0+ (9.5.1 recomendado) - apenas para GPU
+* **Docker**: 20.10+ e Docker Compose 2.0+ (opcional, para deployment)
+* **Frameworks**: Flask para API REST e dashboard web
 
 ## Dependências
 
@@ -58,6 +90,20 @@ Principais bibliotecas utilizadas:
 * `Scikit-learn`: Normalização e processamento
 * `Matplotlib`, `Seaborn`: Visualização de dados
 
+### Aceleração GPU (Opcional)
+
+Para utilizar aceleração por GPU durante o treinamento dos modelos, é necessário instalar os drivers NVIDIA CUDA e cuDNN. O sistema foi testado com CUDA 12.6 e cuDNN 9.5.1.
+
+Consulte o guia completo de instalação: [CUDA_INSTALLATION.md](CUDA_INSTALLATION.md)
+
+**Requisitos mínimos**:
+* GPU NVIDIA com Compute Capability 3.5 ou superior
+* Driver NVIDIA 525.60.13 ou superior
+* CUDA Toolkit 12.3 ou superior
+* cuDNN 9.0 ou superior
+
+**Nota**: A aceleração GPU não é obrigatória. O sistema pode ser executado utilizando apenas CPU, porém com maior tempo de treinamento.
+
 ## Preocupações com Segurança
 
 A execução da ferramenta não apresenta riscos significativos, porém:
@@ -68,6 +114,37 @@ A execução da ferramenta não apresenta riscos significativos, porém:
 ### 3. **Instalação**
 
 O Horus-CDS pode ser instalado de três formas diferentes, dependendo das necessidades e preferências do ambiente de desenvolvimento ou produção.
+
+#### Instalação Rápida (Recomendado)
+
+Para instalação guiada com interface interativa, utilize os scripts de instalação automática:
+
+**Linux / macOS**:
+```bash
+git clone https://github.com/wesleiferreira98/Horus-CDS.git
+cd Horus-CDS
+./install.sh
+```
+
+**Windows**:
+```cmd
+git clone https://github.com/wesleiferreira98/Horus-CDS.git
+cd Horus-CDS
+install.bat
+```
+
+O instalador apresentará três opções:
+1. Instalação Global (sem venv, sem Docker) - Não recomendado
+2. Instalação com Ambiente Virtual (venv-Horus) - **Recomendado**
+3. Instalação com Docker - Recomendado para produção
+
+O script verifica automaticamente as dependências, detecta GPU NVIDIA (se disponível) e configura o ambiente apropriado.
+
+---
+
+#### Instalação Manual
+
+Se preferir instalação manual, siga as instruções abaixo:
 
 #### 3.1. Instalação com Ambiente Virtual Python (venv)
 
@@ -135,6 +212,9 @@ Docker oferece isolamento completo e facilita o deployment em diferentes ambient
 
 - Docker Engine 20.10 ou superior
 - Docker Compose 2.0 ou superior
+- NVIDIA Container Toolkit (apenas para uso com GPU)
+
+**Nota sobre GPU**: Para utilizar GPU dentro de containers Docker, é necessário instalar o NVIDIA Container Toolkit. Consulte a documentação completa em [CUDA_INSTALLATION.md](CUDA_INSTALLATION.md) e [DOCKER.md](DOCKER.md).
 
 **Passo 1**: Clone o repositório:
 
@@ -143,25 +223,30 @@ git clone https://github.com/wesleiferreira98/Horus-CDS.git
 cd Horus-CDS
 ```
 
-**Passo 2**: Construa as imagens Docker:
+**Passo 2**: Escolha o arquivo de configuração apropriado:
 
 ```bash
+# Para execução CPU-only (padrão)
 docker-compose build
-```
-
-**Passo 3**: Inicie os containers:
-
-```bash
 docker-compose up -d
+
+# Para execução com GPU (requer NVIDIA Container Toolkit)
+docker-compose -f docker-compose-gpu.yml build
+docker-compose -f docker-compose-gpu.yml up -d
 ```
 
-**Passo 4**: Verifique o status dos containers:
+**Nota**: O arquivo `docker-compose-gpu.yml` está pré-configurado com suporte GPU. Consulte [DOCKER.md](DOCKER.md) para detalhes sobre configuração GPU.
+
+**Passo 3**: Verifique o status dos containers:
 
 ```bash
 docker-compose ps
+
+# Ou para versão GPU
+docker-compose -f docker-compose-gpu.yml ps
 ```
 
-**Passo 5**: Visualize os logs (opcional):
+**Passo 4**: Visualize os logs (opcional):
 
 ```bash
 # Logs da API
@@ -169,9 +254,11 @@ docker-compose logs -f horus-api
 
 # Logs da interface web
 docker-compose logs -f horus-web
+
+# Para versão GPU, substitua por docker-compose-gpu.yml
 ```
 
-**Passo 6**: Parar os containers:
+**Passo 5**: Parar os containers:
 
 ```bash
 docker-compose down
@@ -194,17 +281,34 @@ docker-compose down -v
 
 Independentemente do método escolhido, verifique se a instalação foi bem-sucedida:
 
-**Para instalação com venv ou tradicional**:
+**Verificação Rápida (venv ou tradicional)**:
 
 ```bash
 python -c "import tensorflow; print(tensorflow.__version__)"
 python -c "import PyQt5; print('PyQt5 instalado com sucesso')"
 ```
 
+**Verificação Completa com GPU (recomendado)**:
+
+Execute o script de teste completo que verifica Python, TensorFlow, CUDA, GPU e todas as bibliotecas:
+
+```bash
+python test_gpu_setup.py
+```
+
+Este script irá:
+- Verificar versão do Python
+- Testar instalação do TensorFlow
+- Detectar suporte CUDA
+- Listar dispositivos GPU disponíveis
+- Executar benchmark de performance CPU vs GPU
+- Verificar todas as bibliotecas necessárias
+
 **Para instalação com Docker**:
 
 ```bash
 docker exec horus-cds-api python -c "import tensorflow; print(tensorflow.__version__)"
+docker exec horus-cds-api python test_gpu_setup.py
 ```
 
 ### Teste Minimo

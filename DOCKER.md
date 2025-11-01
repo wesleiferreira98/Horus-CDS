@@ -59,6 +59,72 @@ sudo usermod -aG docker $USER
 Baixe e instale Docker Desktop em:
 https://www.docker.com/products/docker-desktop
 
+### Suporte a GPU (Opcional)
+
+Para utilizar aceleração GPU dentro de containers Docker, é necessário instalar o NVIDIA Container Toolkit.
+
+**Linux**:
+
+```bash
+# Adicionar repositório
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+# Instalar nvidia-container-toolkit
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+
+# Reiniciar Docker
+sudo systemctl restart docker
+
+# Testar GPU no container
+docker run --rm --gpus all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi
+```
+
+### Arquivo Docker Compose com GPU
+
+O repositório inclui um arquivo pré-configurado para uso com GPU:
+
+```bash
+# Usar configuração com GPU
+docker-compose -f docker-compose-gpu.yml build
+docker-compose -f docker-compose-gpu.yml up -d
+
+# Verificar GPU no container
+docker exec horus-cds-api-gpu nvidia-smi
+```
+
+O arquivo `docker-compose-gpu.yml` inclui:
+- Configuração de recursos GPU
+- Variáveis de ambiente NVIDIA
+- Health checks
+- Limites de memória
+- Documentação de configurações avançadas
+
+**Modificar docker-compose.yml manualmente**:
+
+```yaml
+services:
+  horus-api:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+```
+
+**Windows/macOS com Docker Desktop**:
+
+Docker Desktop para Windows com WSL2 suporta GPU. Para macOS, suporte a GPU NVIDIA não está disponível.
+
+Consulte o guia completo de instalação CUDA: [CUDA_INSTALLATION.md](CUDA_INSTALLATION.md)
+
 ## Estrutura dos Containers
 
 O Horus-CDS utiliza dois containers principais:

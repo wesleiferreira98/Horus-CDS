@@ -1,0 +1,141 @@
+# Docker Compose com Suporte GPU - Horus-CDS
+#
+# Este arquivo demonstra como configurar o Horus-CDS para utilizar
+# aceleração GPU dentro de containers Docker.
+#
+# Pré-requisitos:
+#   - NVIDIA GPU compatível
+#   - Drivers NVIDIA instalados no host
+#   - NVIDIA Container Toolkit instalado
+#   - Docker Engine 20.10+
+#   - Docker Compose 2.0+
+#
+# Uso:
+#   docker-compose -f docker-compose-gpu.yml build
+#   docker-compose -f docker-compose-gpu.yml up -d
+#
+# Verificação:
+#   docker exec horus-cds-api-gpu nvidia-smi
+#
+
+version: '3.8'
+
+services:
+  horus-api-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horus-cds-api-gpu
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./root/API:/app/root/API
+      - ./logs:/app/logs
+    networks:
+      - horus-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1  # Número de GPUs a usar (ou 'all' para todas)
+              capabilities: [gpu]
+    environment:
+      # Variáveis de ambiente NVIDIA
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      
+      # Variáveis do TensorFlow
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
+      - TF_CPP_MIN_LOG_LEVEL=2
+      
+      # Variáveis da aplicação
+      - PYTHONUNBUFFERED=1
+      - FLASK_ENV=production
+    
+    # Health check para verificar se a API está respondendo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  horus-web-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horus-cds-web-gpu
+    command: python root/web/run_web.py
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./root/web:/app/root/web
+      - ./logs:/app/logs
+    networks:
+      - horus-network
+    depends_on:
+      - horus-api-gpu
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FLASK_ENV=production
+    
+    # Health check para o dashboard web
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  horus-network:
+    driver: bridge
+
+# Volumes opcionais para persistência de dados
+# volumes:
+#   model_cache:
+#     driver: local
+#   logs_data:
+#     driver: local
+
+# Configurações avançadas de GPU:
+#
+# 1. Usar GPU específica:
+#    environment:
+#      - NVIDIA_VISIBLE_DEVICES=0  # Apenas GPU 0
+#      - NVIDIA_VISIBLE_DEVICES=0,1  # GPUs 0 e 1
+#
+# 2. Limitar memória GPU:
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 8G
+#
+# 3. Prioridade de recursos:
+#    deploy:
+#      resources:
+#        reservations:
+#          cpus: '2'
+#          memory: 4G
+#
+# 4. Múltiplas réplicas (Swarm mode):
+#    deploy:
+#      replicas: 3
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
+#
+# 5. Capabilities específicas:
+#    NVIDIA_DRIVER_CAPABILITIES valores possíveis:
+#      - compute: CUDA e OpenCL
+#      - utility: nvidia-smi e ferramentas NVML
+#      - graphics: OpenGL
+#      - video: Codificação/decodificação de vídeo
+#      - display: X11 display
+#      - all: Todas as capabilities
