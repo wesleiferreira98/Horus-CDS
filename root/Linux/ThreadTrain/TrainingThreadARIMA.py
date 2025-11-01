@@ -17,6 +17,7 @@ class TrainingThreadARIMA(QThread):
     def __init__(self, data_set):
         super().__init__()
         self.data_set = data_set
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.train_data = None
         self.test_data = None
 
@@ -97,7 +98,7 @@ class TrainingThreadARIMA(QThread):
         return augmented_X, augmented_y
 
     def save_model(self,model):
-        self.output_directory = "./ModelosComplilados"
+        self.output_directory = os.path.join(self.base_dir, "ModelosComplilados")
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directory, exist_ok=True)
         h5_filename = os.path.join(self.output_directory,"tcn_model.h5")

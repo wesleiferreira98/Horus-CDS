@@ -35,6 +35,7 @@ RNN_model_metrics.txt
 LSTM_model_metrics.txt  
 TCN_model_metrics.txt
 LSTM_model_results.csv
+/venv-Horus/
 prediction_plot.jpg
 *.jpg
 

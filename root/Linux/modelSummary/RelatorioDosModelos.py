@@ -9,9 +9,11 @@ class RelatorioDosModelos:
         self.model = model
         self.models_and_results = models_and_results
         self.metrics = metrics
-        self.output_directoryCSV = "./RelatorioDosModelos(CSV)"
-        self.output_directoryPDF = "./RelatorioDosModelos(PDF)"
-        self.output_directoryTXT = "./RelatorioDosModelos(TXT)"
+        # Definir base_dir como root/Linux
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.output_directoryCSV = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
+        self.output_directoryPDF = os.path.join(self.base_dir, "RelatorioDosModelos(PDF)")
+        self.output_directoryTXT = os.path.join(self.base_dir, "RelatorioDosModelos(TXT)")
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directoryCSV, exist_ok=True)
         os.makedirs(self.output_directoryPDF, exist_ok=True)
@@ -111,8 +113,6 @@ class RelatorioDosModelos:
     def save_shared_metrics_list(self, mse_list, rmse_list, modelname, shared_csv_file="shared_model_metrics_list.csv"):
         # Diretório de saída
         print("MODELLL Name",modelname)
-        output_directory = "RelatorioDosModelos"
-        os.makedirs(output_directory, exist_ok=True)
         
         # Caminho completo do arquivo CSV
         csv_file_path = os.path.join(self.output_directoryCSV, shared_csv_file)

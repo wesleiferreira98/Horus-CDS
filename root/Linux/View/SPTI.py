@@ -1,12 +1,16 @@
 from PyQt5.QtWidgets import (
     QWidget, QTableView, QPushButton, QFileDialog, QVBoxLayout, 
     QScrollArea, QLabel, QTableWidgetItem, QMessageBox, QProgressBar,
-    QRadioButton, QTableWidget, QHBoxLayout, QSpacerItem, QSizePolicy
+    QRadioButton, QTableWidget, QHBoxLayout, QSpacerItem, QSizePolicy, QCheckBox
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt, QThreadPool, QTimer, pyqtSlot
 import numpy as np
 import pandas as pd
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from gpu_config import has_gpu, is_using_gpu
 from Models.PandasModel import PandasModel
 from View.CustomMessageBox import CustomMessageBox
 from View.LoadDataThread import LoadDataThread
@@ -15,7 +19,8 @@ import matplotlib.pyplot as plt
 from ThreadTrain import (
     TrainingThreadGRU, TrainingThreadLSTM, TrainingThreadARIMA, 
     TrainingThreadTCN, TrainingThreadKNN, TrainingThreadRNN, 
-    TrainingThreadRandomForest
+    TrainingThreadRandomForest,
+    GRU_corrigido, LSTM_corrigido, RNN_corrigido, TCN_corrigido
 )
 import os
 import joblib
@@ -33,6 +38,8 @@ class SPTI(QWidget):
 
     def __init__(self):
         super().__init__()
+        # Definir diretório base do projeto (root/Linux)
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.initUI()
         self.processed_data = False
         self.threadpool = QThreadPool()
@@ -68,6 +75,12 @@ class SPTI(QWidget):
         self.rb_TCN = QRadioButton("Treinar com rede neural TCN")
         self.rb_RNN = QRadioButton("Treinar com rede neural RNN")
         self.rb_GRU = QRadioButton("Treinar com rede neural GRU")
+        
+        # Modelos corrigidos
+        self.rb_GRU_corrigido = QRadioButton("Treinar com GRU Corrigido")
+        self.rb_LSTM_corrigido = QRadioButton("Treinar com LSTM Corrigido")
+        self.rb_RNN_corrigido = QRadioButton("Treinar com RNN Corrigido")
+        self.rb_TCN_corrigido = QRadioButton("Treinar com TCN Corrigido")
 
         self.train_button = QPushButton('Selecionar Data SET')
         self.train_model_button = QPushButton('Iniciar Treinamento')
@@ -77,25 +90,51 @@ class SPTI(QWidget):
         self.label_train_test = QLabel("Dados de Treino")
         self.label_progess_test = QLabel("Progresso do Teste")
 
+        # Label informativo sobre GPU
+        self.gpu_info_label = QLabel()
+        if has_gpu():
+            if is_using_gpu():
+                self.gpu_info_label.setText("GPU Detectada e Ativa para Treinamento")
+                self.gpu_info_label.setStyleSheet("color: green; font-weight: bold;")
+            else:
+                self.gpu_info_label.setText("GPU Detectada mas Desabilitada (modo CPU)")
+                self.gpu_info_label.setStyleSheet("color: orange; font-weight: bold;")
+        else:
+            self.gpu_info_label.setText("GPU Não Detectada (usando CPU)")
+            self.gpu_info_label.setStyleSheet("color: red; font-weight: bold;")
+
         # Organizing radio buttons and labels
         rb_train_layoutV1 = QVBoxLayout()
         rb_train_layoutV1.addWidget(self.rb_RandomForest)
         rb_train_layoutV1.addWidget(self.rb_KNN)
         rb_train_layoutV1.addWidget(self.rb_TCN)
+        rb_train_layoutV1.addWidget(self.rb_ARIMA)
 
         rb_train_layoutV2 = QVBoxLayout()
-        rb_train_layoutV2.addWidget(self.rb_ARIMA)
         rb_train_layoutV2.addWidget(self.rb_LSTM)
         rb_train_layoutV2.addWidget(self.rb_RNN)
         rb_train_layoutV2.addWidget(self.rb_GRU)
+        
+        rb_train_layoutV3 = QVBoxLayout()
+        rb_train_layoutV3.addWidget(self.rb_GRU_corrigido)
+        rb_train_layoutV3.addWidget(self.rb_LSTM_corrigido)
+        rb_train_layoutV3.addWidget(self.rb_RNN_corrigido)
+        rb_train_layoutV3.addWidget(self.rb_TCN_corrigido)
 
         rb_train_layout = QHBoxLayout()
         rb_train_layout.addLayout(rb_train_layoutV1)
         rb_train_layout.addLayout(rb_train_layoutV2)
+        rb_train_layout.addLayout(rb_train_layoutV3)
 
         integration_rb_label = QVBoxLayout()
         integration_rb_label.addWidget(self.model_select_train)
         integration_rb_label.addLayout(rb_train_layout)
+        
+        # Adicionar label informativo de GPU
+        gpu_info_layout = QHBoxLayout()
+        gpu_info_layout.addWidget(self.gpu_info_label)
+        gpu_info_layout.setAlignment(Qt.AlignCenter)
+        integration_rb_label.addLayout(gpu_info_layout)
 
         label_train_layout = QHBoxLayout()
         label_train_layout.addWidget(self.label_train_test)
@@ -142,6 +181,10 @@ class SPTI(QWidget):
         self.rb_RNN.toggled.connect(self.on_radio_button_toggled)
         self.rb_GRU.toggled.connect(self.on_radio_button_toggled)
         self.rb_ARIMA.toggled.connect(self.on_radio_button_toggled)
+        self.rb_GRU_corrigido.toggled.connect(self.on_radio_button_toggled)
+        self.rb_LSTM_corrigido.toggled.connect(self.on_radio_button_toggled)
+        self.rb_RNN_corrigido.toggled.connect(self.on_radio_button_toggled)
+        self.rb_TCN_corrigido.toggled.connect(self.on_radio_button_toggled)
 
         self.setStyleSheet("""
             QWidget {
@@ -182,7 +225,9 @@ class SPTI(QWidget):
         self.capture.show()
     def select_train_data(self):
         file_dialog = QFileDialog()
-        train_data_file, _ = file_dialog.getOpenFileName(self, 'Selecionar Data SET', '', 'CSV Files (*.csv)')
+        # Abrir diálogo na pasta DadosReais
+        default_dir = os.path.join(self.base_dir, 'DadosReais')
+        train_data_file, _ = file_dialog.getOpenFileName(self, 'Selecionar Data SET', default_dir, 'CSV Files (*.csv)')
         if train_data_file:
             try:
                 self.train_data = pd.read_csv(train_data_file)
@@ -276,7 +321,7 @@ class SPTI(QWidget):
         selected_model = self.get_selected_model()
         if selected_model:
             self.model_select_train.setText(f"Treinar com Modelo {selected_model}")
-
+    
     def get_selected_model(self):
         if self.rb_RandomForest.isChecked():
             return 'Random Forest'
@@ -292,6 +337,14 @@ class SPTI(QWidget):
             return 'RNN'
         elif self.rb_GRU.isChecked():
             return 'GRU'
+        elif self.rb_GRU_corrigido.isChecked():
+            return 'GRU_corrigido'
+        elif self.rb_LSTM_corrigido.isChecked():
+            return 'LSTM_corrigido'
+        elif self.rb_RNN_corrigido.isChecked():
+            return 'RNN_corrigido'
+        elif self.rb_TCN_corrigido.isChecked():
+            return 'TCN_corrigido'
         return None
 
     def train_model(self, model_name):
@@ -309,6 +362,14 @@ class SPTI(QWidget):
             self.train_thread = TrainingThreadRNN.TrainingThreadRNN(self.train_data)
         elif model_name == 'Random Forest':
             self.train_thread = TrainingThreadRandomForest.TrainingThreadRandomForest(self.train_data)
+        elif model_name == 'GRU_corrigido':
+            self.train_thread = GRU_corrigido.TrainingThreadGRUCorrigido(self.train_data)
+        elif model_name == 'LSTM_corrigido':
+            self.train_thread = LSTM_corrigido.TrainingThreadLSTMCorrigido(self.train_data)
+        elif model_name == 'RNN_corrigido':
+            self.train_thread = RNN_corrigido.TrainingThreadRNNCorrigido(self.train_data)
+        elif model_name == 'TCN_corrigido':
+            self.train_thread = TCN_corrigido.TrainingThreadTCNCorrigido(self.train_data)
         else:
             QMessageBox.critical(self, "Erro", "Modelo de treinamento inválido.")
             return
@@ -323,13 +384,13 @@ class SPTI(QWidget):
 
     def plot_prediction(self, y_true, y_pred, dates, modelname):
         # Carregar o scaler salvo
-        scaler_file = "./TratamentoDeDados/scaler.pkl"
+        scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
         scaler = joblib.load(scaler_file)
 
         # Convertendo as datas para o formato datetime
         dates = pd.to_datetime(dates)
 
-        self.output_directory = "./PrevisoesDosModelos"
+        self.output_directory = os.path.join(self.base_dir, "PrevisoesDosModelos")
         os.makedirs(self.output_directory, exist_ok=True)
         
         # Usar apenas os 20 primeiros dados
@@ -385,10 +446,10 @@ class SPTI(QWidget):
 
     def plot_prediction_block(self, y_true, y_pred, modelname):
         # Carregar o scaler salvo
-        scaler_file = "./TratamentoDeDados/scaler.pkl"
+        scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = "./PrevisoesDosModelos(Block)"
+        self.output_directory = os.path.join(self.base_dir, "PrevisoesDosModelos(Block)")
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados
@@ -427,10 +488,10 @@ class SPTI(QWidget):
     
     def plot_prediction_boxplot(self, y_true, y_pred, modelname):
         # Carregar o scaler salvo
-        scaler_file = os.path.join("./TratamentoDeDados", "scaler.pkl")
+        scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = "./PrevisoesDosModelos(BoxPlot)"
+        self.output_directory = os.path.join(self.base_dir, "PrevisoesDosModelos(BoxPlot)")
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados
@@ -469,7 +530,7 @@ class SPTI(QWidget):
 
 
     def plot_metrics(self, mse, rmse, modelname):
-        output_directory = "./MetricaDosModelos"
+        output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         
@@ -497,7 +558,7 @@ class SPTI(QWidget):
         self.show_image(metrics_filename)
 
     def plot_metric_boxplot(self, mse_list, rmse_list, modelname):
-        output_directory = "./MetricaDosModelos"
+        output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
 
@@ -532,10 +593,10 @@ class SPTI(QWidget):
         self.plot_metrics_comparison_boxplot()
 
     def plot_metrics_comparison_boxplot(self, shared_csv_file="shared_model_metrics_list.csv"):
-        output_directory = "./RelatorioDosModelos(CSV)"
+        output_directory = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
         os.makedirs(output_directory, exist_ok=True)
 
-        output_directory1 = "./ComparacaoMetricas(BoxPlot)"
+        output_directory1 = os.path.join(self.base_dir, "ComparacaoMetricas(BoxPlot)")
         os.makedirs(output_directory1, exist_ok=True)
         
         # Caminho completo do arquivo CSV
@@ -598,7 +659,7 @@ class SPTI(QWidget):
         self.plot_difference_comparison_boxplot()
 
     def plot_difference_comparison_boxplot(self, shared_csv_file="shared_model_difference_list.csv"):
-        output_directory = "./RelatorioDosModelos(CSV)"
+        output_directory = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
         os.makedirs(output_directory, exist_ok=True)
         
         # Caminho completo do arquivo CSV
@@ -631,7 +692,7 @@ class SPTI(QWidget):
         plt.grid(axis='y')
         plt.tight_layout()
 
-        output_directory1 = "./PrevisaoDosModelos(Diferenca)"
+        output_directory1 = os.path.join(self.base_dir, "PrevisaoDosModelos(Diferenca)")
         os.makedirs(output_directory1, exist_ok=True)
 
         difference_filename = os.path.join(output_directory1, "boxplot_difference_comparison.jpg")
@@ -653,7 +714,7 @@ class SPTI(QWidget):
         self.main_layout.addLayout(layout)
     
     def plot_metrics_shared(self):
-        intput_directory = "./RelatorioDosModelos(CSV)"
+        intput_directory = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
         # Create the output directory if it doesn't exist
         metrics_filename = os.path.join(intput_directory, 'shared_model_metrics.csv')
         os.makedirs(intput_directory, exist_ok=True)
@@ -690,7 +751,7 @@ class SPTI(QWidget):
             plt.grid(axis='y')
             plt.tight_layout()
 
-            output_directory = "./MetricaDosModelos"
+            output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
             os.makedirs(output_directory, exist_ok=True)
 
             # Salvar a imagem do gráfico
@@ -700,7 +761,7 @@ class SPTI(QWidget):
     
     def plot_mse_progression(self,mse_values,model_name):
 
-        output_directory = "./MetricaDosModelos"
+        output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         plt.figure(figsize=(10, 6))

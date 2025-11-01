@@ -53,6 +53,7 @@ class TrainingThreadLSTM(QThread):
     def __init__(self, data_set):
         super().__init__()
         self.data_set = data_set
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.X_train = None
         self.X_test = None
         self.y_train = None
@@ -185,7 +186,7 @@ class TrainingThreadLSTM(QThread):
 
 
     def save_model(self,model):
-        self.output_directory = "./ModelosComplilados"
+        self.output_directory = os.path.join(self.base_dir, "ModelosComplilados")
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directory, exist_ok=True)
         h5_filename = os.path.join(self.output_directory,"lstm_model.h5")
