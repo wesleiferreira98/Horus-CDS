@@ -1,0 +1,19 @@
+RELATÓRIO GRU CORRIGIDO - SEM VAZAMENTO TEMPORAL
+============================================================
+Acurácia: 0.020 (2.0%)
+Correções aplicadas:
+- Divisão temporal (não aleatória)
+- Features calculadas separadamente
+- StandardScaler fit apenas no treino
+- Balanceamento de classes
+- Classificação direta (não regressão)
+
+              precision    recall  f1-score   support
+
+      ilegal       0.02      1.00      0.04        85
+    suspeito       0.00      0.00      0.00        16
+      válido       0.00      0.00      0.00      4187
+
+    accuracy                           0.02      4288
+   macro avg       0.01      0.33      0.01      4288
+weighted avg       0.00      0.02      0.00      4288

@@ -5,15 +5,25 @@ import pandas as pd
 import csv
 
 class RelatorioDosModelos:
-    def __init__(self, model, models_and_results, metrics):
+    def __init__(self, model, models_and_results, metrics, model_type="Old"):
+        """
+        model_type: "Old" para modelos originais ou "New" para modelos corrigidos
+        """
         self.model = model
         self.models_and_results = models_and_results
         self.metrics = metrics
         # Definir base_dir como root/Linux
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.output_directoryCSV = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
-        self.output_directoryPDF = os.path.join(self.base_dir, "RelatorioDosModelos(PDF)")
-        self.output_directoryTXT = os.path.join(self.base_dir, "RelatorioDosModelos(TXT)")
+        
+        # Definir subpasta baseada no tipo de modelo
+        if model_type == "New":
+            sub_folder = "DadosDoPostreino/ModelosNew"
+        else:
+            sub_folder = "DadosDoPostreino/ModelosOlds"
+        
+        self.output_directoryCSV = os.path.join(self.base_dir, sub_folder, "RelatorioDosModelos(CSV)")
+        self.output_directoryPDF = os.path.join(self.base_dir, sub_folder, "RelatorioDosModelos(PDF)")
+        self.output_directoryTXT = os.path.join(self.base_dir, sub_folder, "RelatorioDosModelos(TXT)")
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directoryCSV, exist_ok=True)
         os.makedirs(self.output_directoryPDF, exist_ok=True)
@@ -171,8 +181,12 @@ class RelatorioDosModelos:
                 if not file_exists:
                     writer.writeheader()
 
-                # Converta a lista de diferenças para uma string
-                difference_str = ','.join(map(str, difference))
+                # Converta a lista de diferenças para uma string (achatar array se necessário)
+                if hasattr(difference, 'flatten'):
+                    difference_flat = difference.flatten()
+                else:
+                    difference_flat = difference
+                difference_str = ','.join(map(str, difference_flat))
 
                 # Escreva os dados no arquivo CSV
                 writer.writerow({

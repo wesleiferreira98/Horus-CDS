@@ -20,7 +20,14 @@ class GraphThreadCustom(QThread):
         self.rmse = rmse
         self.mse_list = mse_list
         self.rmse_list=rmse_list
-
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    def _get_model_directory_suffix(self, modelname):
+        """Determina o sufixo do diretório baseado no nome do modelo"""
+        if "Corrigido" in modelname or "corrigido" in modelname:
+            return "DadosDoPostreino/ModelosNew"
+        else:
+            return "DadosDoPostreino/ModelosOlds"
     
     def run(self):
         try:
@@ -193,7 +200,9 @@ class GraphThreadCustom(QThread):
         self.show_image.emit(prediction_filename)
 
     def plot_metrics(self, mse, rmse, modelname):
-        output_directory = "MetricaDosModelos"
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         
@@ -221,7 +230,9 @@ class GraphThreadCustom(QThread):
         self.show_image.emit(metrics_filename)
 
     def plot_metric_boxplot(self, mse_list, rmse_list, modelname):
-        output_directory = "MetricaDosModelos"
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
 
@@ -292,7 +303,9 @@ class GraphThreadCustom(QThread):
             plt.grid(axis='y')
             plt.tight_layout()
 
-            output_directory = "MetricaDosModelos"
+            # Determinar diretório baseado no tipo de modelo (Old/New)
+            model_dir_suffix = self._get_model_directory_suffix(self.modelname)
+            output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
             os.makedirs(output_directory, exist_ok=True)
 
             # Salvar a imagem do gráfico
@@ -301,8 +314,9 @@ class GraphThreadCustom(QThread):
             self.show_image.emit(metrics_filename)
     
     def plot_mse_progression(self,mse_values,model_name):
-
-        output_directory = "MetricaDosModelos"
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(model_name)
+        output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         plt.figure(figsize=(10, 6))

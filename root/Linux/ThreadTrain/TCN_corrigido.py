@@ -32,6 +32,8 @@ import seaborn as sns
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import Pipeline as ImbPipeline
+from modelSummary.RelatorioDosModelos import RelatorioDosModelos
+from modelSummary.ModelSummary import ModelSummary
 
 class KerasTCNRegressorBalanced(BaseEstimator, RegressorMixin):
   def __init__(self, input_shape, nb_filters=64, kernel_size=3, nb_stacks=1, 
@@ -115,8 +117,16 @@ class TrainingThreadTCNCorrigido(QThread):
     """
     print("Realizando divisão temporal dos dados...")
     
-    # Ordenar por data
-    data_sorted = data.sort_values('TXTDATE').reset_index(drop=True)
+    # Criar coluna datetime combinando data e hora
+    data['DATETIME'] = pd.to_datetime(data['TXTDATE'].astype(str) + ' ' + data['TXTTIME'].astype(str))
+    
+    # Remover duplicatas temporais
+    print(f"Dados originais: {len(data)} registros")
+    data_clean = data.drop_duplicates(subset=['DATETIME'], keep='first').copy()
+    print(f"Apos limpeza: {len(data_clean)} registros ({len(data) - len(data_clean)} duplicatas removidas)")
+    
+    # Ordenar por datetime completo (data + hora)
+    data_sorted = data_clean.sort_values('DATETIME').reset_index(drop=True)
     
     # Calcular ponto de divisão
     split_idx = int(len(data_sorted) * (1 - test_ratio))
@@ -124,9 +134,12 @@ class TrainingThreadTCNCorrigido(QThread):
     train_data = data_sorted.iloc[:split_idx].copy()
     test_data = data_sorted.iloc[split_idx:].copy()
     
-    print(f"Divisão temporal:")
-    print(f"  Treino: {train_data['TXTDATE'].min()} até {train_data['TXTDATE'].max()} ({len(train_data)} amostras)")
-    print(f"  Teste: {test_data['TXTDATE'].min()} até {test_data['TXTDATE'].max()} ({len(test_data)} amostras)")
+    print(f"\nDivisao temporal:")
+    print(f"  Treino: {train_data['DATETIME'].min()} ate {train_data['DATETIME'].max()} ({len(train_data)} amostras)")
+    print(f"  Teste: {test_data['DATETIME'].min()} ate {test_data['DATETIME'].max()} ({len(test_data)} amostras)")
+    print(f"  DATETIME únicos no teste: {test_data['DATETIME'].nunique()}")
+    print(f"  Primeiros 10 DATETIME do teste:")
+    print(test_data['DATETIME'].head(10).values)
     
     return train_data, test_data
   
@@ -270,12 +283,12 @@ class TrainingThreadTCNCorrigido(QThread):
     X_train = train_data[features].values
     y_train = train_data[target].values
     categories_train = train_data['CATEGORY'].values
-    dates_train = train_data['TXTDATE'].values
+    dates_train = train_data['DATETIME'].values  # Usar DATETIME completo
     
     X_test = test_data[features].values
     y_test = test_data[target].values
     self.categories_test = test_data['CATEGORY'].values
-    self.dates_test = test_data['TXTDATE'].values
+    self.dates_test = test_data['DATETIME'].values  # Usar DATETIME completo
     
     # 5. Normalização (fit apenas no treino!)
     print("Aplicando normalização (StandardScaler apenas no treino)...")
@@ -316,24 +329,6 @@ class TrainingThreadTCNCorrigido(QThread):
     return class_weights
 
   def run(self):
-    """Metodo run para compatibilidade com interface"""
-    results = self.run_corrected()
-    
-    # Emitir sinais para interface
-    mse_array = np.array(results['mse_progression'])
-    rmse_array = np.array(results['rmse_progression'])
-    
-    self.update_prediction_chart.emit(
-      self.dates_test, 
-      self.y_test.flatten(), 
-      results['predictions'].flatten(),
-      "Modelo TCN Corrigido"
-    )
-    self.update_metrics_chart.emit(results['mse'], results['rmse'], "Modelo TCN Corrigido")
-    self.update_metrics_chart_boxplot.emit(mse_array, rmse_array, "TCN_Corrigido")
-    self.show_test_accuracy.emit(results['mse'])
-
-  def run_corrected(self):
     """
     Execução corrigida do treinamento
     """
@@ -387,31 +382,81 @@ class TrainingThreadTCNCorrigido(QThread):
       rmse_list.append(np.sqrt(test_mse))
       self.update_progress.emit((epoch + 1) / 20)
     
-    # Avaliar modelo
-    test_results = best_model.model.predict(self.X_test)
-    test_mse_final = mse_list[-1]
-    r_squared = r2_score(self.y_test, test_results)
-    
-    print(f"Resultados finais:")
-    print(f"  MSE: {test_mse_final:.6f}")
-    print(f"  RMSE: {np.sqrt(test_mse_final):.6f}")
-    print(f"  R²: {r_squared:.6f}")
-    
     # Gerar matriz de confusão
-    self.generate_confusion_matrix_corrected(self.categories_test, test_results)
+    self.generate_confusion_matrix_corrected(self.categories_test, best_model.model.predict(self.X_test))
     
     # Salvar modelo
     self.save_model_corrected(best_model.model)
     
-    return {
-      'mse': test_mse_final,
-      'rmse': np.sqrt(test_mse_final),
-      'r2': r_squared,
-      'predictions': test_results,
-      'dates': self.dates_test,
-      'mse_progression': mse_list,
-      'rmse_progression': rmse_list
+    # EXATAMENTE como o modelo original - linha por linha
+    test_loss = best_model.model.evaluate(self.X_test, self.y_test)
+    test_mse = test_loss[1]
+    test_results = best_model.model.predict(self.X_test)
+    dates_test_array = np.array(self.dates_test)
+    y_test_array = np.array(self.y_test)
+
+    mse_array = np.array(mse_list)  # Convertendo lista para array NumPy
+    rmse_array = np.array(rmse_list)
+    r_squared = r2_score(self.y_test, test_results)
+
+    # Garantir que y_true e y_pred são unidimensionais
+    y_trueA = np.ravel(y_test_array)
+    y_predA = np.ravel(test_results)
+
+    # Calcular a diferença entre previstos e reais
+    difference = y_predA - y_trueA
+
+    # DEBUG: Verificar tamanhos antes de criar DataFrame
+    print(f"\nDEBUG - Criando DataFrame:")
+    print(f"   dates_test_array shape: {dates_test_array.shape}")
+    print(f"   y_test_array shape: {y_test_array.shape}")
+    print(f"   test_results shape: {test_results.shape}")
+    print(f"   dates_test_array unique: {len(np.unique(dates_test_array))}")
+    print(f"   Primeiros 5 dates: {dates_test_array[:5]}")
+    print(f"   Primeiros 5 y_true: {y_test_array.flatten()[:5]}")
+    print(f"   Primeiros 5 y_pred: {test_results.flatten()[:5]}")
+
+    df_results = pd.DataFrame({
+        'Data': dates_test_array,
+        'Valor_Real': y_test_array.flatten(),
+        'Valor_Previsto': test_results.flatten()
+    })
+    
+    print(f"   DataFrame criado com {len(df_results)} linhas")
+    print(f"   DataFrame unique dates: {df_results['Data'].nunique()}")
+    print(f"   Primeiras 5 linhas do DataFrame:")
+    print(df_results.head())
+
+    df_results['Valor_Previsto_SMA'] = df_results['Valor_Previsto'].rolling(window=3, min_periods=1).mean()
+    
+    # Criar ModelSummary
+    keras_model = best_model.model
+    modelSu = ModelSummary(keras_model, 'TCN_Corrigido_model_summary.pdf', self.X_test.shape, self.y_test.shape)
+    
+    # Preparar os dados para o relatório
+    models_and_results = {
+        'TCN_Corrigido_model': (df_results, modelSu)
     }
+
+    # Colete as métricas
+    metrics = {
+        'MSE': test_mse,
+        'RMSE': np.sqrt(test_mse),
+        'R²': r_squared
+        # Adicione outras métricas conforme necessário
+    }
+
+    # Instanciar e salvar o relatório (modelo corrigido - New)
+    relatorio = RelatorioDosModelos(best_model, models_and_results, metrics, model_type="New")
+    relatorio.save_reports_CSV_PDF()
+    relatorio.save_shared_metrics()
+    relatorio.save_shared_metrics_list(mse_list, rmse_list, "Modelo TCN Corrigido")
+    relatorio.save_shared_difference_list(difference, "Modelo TCN Corrigido")
+
+    self.update_prediction_chart.emit(y_test_array, test_results, dates_test_array, "Modelo TCN Corrigido")
+    self.show_test_accuracy.emit(test_mse)
+    self.update_metrics_chart.emit(test_mse, np.sqrt(test_mse), "Modelo TCN Corrigido")
+    self.update_metrics_chart_boxplot.emit(mse_array, rmse_array, "TCN Corrigido")
   
   def generate_confusion_matrix_corrected(self, y_true_categories, y_pred_longtime):
     """
@@ -447,8 +492,8 @@ class TrainingThreadTCNCorrigido(QThread):
     plt.xlabel('Categoria Predita')
     plt.ylabel('Categoria Real')
     
-    # Salvar
-    output_dir = os.path.join(self.base_dir, "MatrizConfusaoCorrigida")
+    # Salvar no diretório correto dentro de DadosDoPostreino/ModelosNew
+    output_dir = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/MatrizConfusao")
     os.makedirs(output_dir, exist_ok=True)
     plt.savefig(f'{output_dir}/matriz_confusao_tcn_corrigido.jpg', dpi=300, bbox_inches='tight')
     plt.close()
@@ -469,13 +514,12 @@ class TrainingThreadTCNCorrigido(QThread):
       f.write(report)
     
     print(f"Matriz de confusão corrigida salva em: {output_dir}")
-    print(f"Acurácia corrigida: {accuracy:.3f} ({accuracy*100:.1f}%)")
     
     return cm, report
   
   def save_model_corrected(self, model):
-    """Salva modelo corrigido"""
-    output_directory = os.path.join(self.base_dir, "ModelosCorrigidos")
+    """Salva modelo corrigido em DadosDoPostreino/ModelosNew"""
+    output_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/ModelosCorrigidos")
     os.makedirs(output_directory, exist_ok=True)
     keras_filename = os.path.join(output_directory, "tcn_model_corrigido.keras")
     model.save(keras_filename)

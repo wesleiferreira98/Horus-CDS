@@ -441,13 +441,13 @@ python main.py
 
 #### Imagens do Hórus-CDS (PyQt5)
 
-![1762038039413](image/README/1762038039413.png)
+![1762096352832](image/README/1762096352832.png)
 
 Figura 2: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
 
-![1762037974214](image/README/1762037974214.png)
+![1762094258794](image/README/1762094258794.png)
 
-Figura 3: Interfaçe inicial do Hórus-CDS pós treinamento. Fonte: Dos autores
+Figura 3: Interfaçe inicial do Hórus-CDS durante o treinamento. Fonte: Dos autores
 
 ![1729628644600](image/README/1729628644600.png)
 

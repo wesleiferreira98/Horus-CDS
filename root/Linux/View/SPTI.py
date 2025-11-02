@@ -59,6 +59,16 @@ class SPTI(QWidget):
         except:
             pass
         event.accept()
+    
+    def _get_model_directory_suffix(self, modelname):
+        """
+        Determina o sufixo do diretório baseado no nome do modelo.
+        Modelos corrigidos vão para ModelosNew, outros para ModelosOlds.
+        """
+        if "Corrigido" in modelname or "corrigido" in modelname:
+            return "DadosDoPostreino/ModelosNew"
+        else:
+            return "DadosDoPostreino/ModelosOlds"
 
     def initUI(self):
         self.setWindowTitle('Central de Treinamento de Modelos (Horus-CDS)')
@@ -100,7 +110,8 @@ class SPTI(QWidget):
         self.train_button = QPushButton('Selecionar Data SET')
         self.train_model_button = QPushButton('Iniciar Treinamento')
         self.model_select_train = QLabel("Selecione o Modelo de treinamento")
-        self.grafic_models_button = QPushButton('Obter dados do ultimo treinamento')
+        self.grafic_models_old_button = QPushButton('📊 Dados Treinamento - Modelos Antigos')
+        self.grafic_models_new_button = QPushButton('📊 Dados Treinamento - Modelos Novos')
         self.grafic_logs = QPushButton('Capturar dados de Log') 
         self.label_train_test = QLabel("Dados de Treino")
         self.label_progess_test = QLabel("Progresso do Teste")
@@ -180,7 +191,13 @@ class SPTI(QWidget):
         # Adding widgets to the main layout
         self.main_layout.addWidget(self.train_button)
         self.main_layout.addWidget(self.train_model_button)
-        self.main_layout.addWidget(self.grafic_models_button)
+        
+        # Layout horizontal para os dois botões de dados de treinamento
+        grafic_buttons_layout = QHBoxLayout()
+        grafic_buttons_layout.addWidget(self.grafic_models_old_button)
+        grafic_buttons_layout.addWidget(self.grafic_models_new_button)
+        self.main_layout.addLayout(grafic_buttons_layout)
+        
         self.main_layout.addWidget(self.grafic_logs)
         self.main_layout.addLayout(integration_rb_label)
         self.main_layout.addLayout(label_progress_layout)
@@ -192,7 +209,8 @@ class SPTI(QWidget):
         # Connecting signals to slots
         self.train_button.clicked.connect(self.select_train_data)
         self.train_model_button.clicked.connect(self.start_training)
-        self.grafic_models_button.clicked.connect(self.plot_metrics_shared)
+        self.grafic_models_old_button.clicked.connect(self.plot_metrics_shared_old)
+        self.grafic_models_new_button.clicked.connect(self.plot_metrics_shared_new)
         self.grafic_logs.clicked.connect(self.cap_log)
         self.rb_RandomForest.toggled.connect(self.on_radio_button_toggled)
         self.rb_KNN.toggled.connect(self.on_radio_button_toggled)
@@ -235,6 +253,39 @@ class SPTI(QWidget):
             }
             QPushButton:hover {
                 background-color: #1C86EE;
+            }
+        """)
+        
+        # Estilos específicos para os botões de dados de treinamento
+        self.grafic_models_old_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF6B6B;  /* Vermelho suave para modelos antigos */
+                border: 2px solid #C92A2A;
+                color: white;
+                font-weight: bold;
+                font-size: 14px;
+                padding: 12px 20px;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #FA5252;
+                border: 2px solid #A61E1E;
+            }
+        """)
+        
+        self.grafic_models_new_button.setStyleSheet("""
+            QPushButton {
+                background-color: #51CF66;  /* Verde para modelos novos/corrigidos */
+                border: 2px solid #2F9E44;
+                color: white;
+                font-weight: bold;
+                font-size: 14px;
+                padding: 12px 20px;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #40C057;
+                border: 2px solid #2B8A3E;
             }
         """)
 
@@ -451,29 +502,121 @@ class SPTI(QWidget):
 
 
     def plot_prediction(self, y_true, y_pred, dates, modelname):
-        # Carregar o scaler salvo
-        scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
-        scaler = joblib.load(scaler_file)
-
-        # Convertendo as datas para o formato datetime
-        dates = pd.to_datetime(dates)
-
-        self.output_directory = os.path.join(self.base_dir, "PrevisoesDosModelos")
+        print(f"\n{'='*80}")
+        print(f"   plot_prediction() chamado para: {modelname}")
+        print(f"   y_true shape: {np.array(y_true).shape}")
+        print(f"   y_pred shape: {np.array(y_pred).shape}")
+        print(f"   dates shape: {np.array(dates).shape}")
+        print(f"{'='*80}\n")
+        
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        self.output_directory = os.path.join(self.base_dir, model_dir_suffix, "PrevisoesDosModelos")
         os.makedirs(self.output_directory, exist_ok=True)
         
-        # Usar apenas os 20 primeiros dados
-        y_true = y_true[:20]
-        y_pred = y_pred[:20]
-        dates = dates[:20]
+        # Se for modelo corrigido, ler dados do CSV
+        if "Corrigido" in modelname or "corrigido" in modelname:
+            print(f"Modelo corrigido detectado: {modelname}")
+            print(f"Lendo dados do CSV para gerar gráfico...")
+            
+            # Construir caminho do CSV
+            csv_dir = os.path.join(self.base_dir, model_dir_suffix, "RelatorioDosModelos(CSV)")
+            # Extrair nome base do modelo (ex: "Modelo TCN Corrigido" -> "TCN_Corrigido")
+            model_parts = modelname.replace("Modelo ", "").replace(" ", "_")
+            csv_filename = os.path.join(csv_dir, f"{model_parts}_model_results.csv")
+            
+            print(f"🔍 Buscando CSV em: {csv_filename}")
+            
+            try:
+                # Ler CSV
+                df_csv = pd.read_csv(csv_filename)
+                print(f"   CSV carregado com sucesso!")
+                print(f"   Arquivo: {csv_filename}")
+                print(f"   Colunas: {df_csv.columns.tolist()}")
+                print(f"   Total de linhas: {len(df_csv)}")
+                
+                # Extrair dados do CSV (já desnormalizados)
+                dates = pd.to_datetime(df_csv['Data'])
+                y_true = df_csv['Valor_Real'].values
+                y_pred = df_csv['Valor_Previsto'].values
+                
+                print(f"   Valores extraídos do CSV:")
+                print(f"     y_true: min={y_true.min():.4f}, max={y_true.max():.4f}, mean={y_true.mean():.4f}")
+                print(f"     y_pred: min={y_pred.min():.4f}, max={y_pred.max():.4f}, mean={y_pred.mean():.4f}")
+                
+                # Usar apenas os 20 primeiros dados
+                y_true = y_true[:20]
+                y_pred = y_pred[:20]
+                dates = dates[:20]
+                
+                print(f"Usando {len(y_true)} pontos para o gráfico")
+                
+                # Dados do CSV já estão desnormalizados, apenas garantir formato correto
+                y_true = np.ravel(y_true)
+                y_pred = np.ravel(y_pred)
+                dates = np.ravel(dates)
+                
+                print(f"Dados do CSV prontos para plotagem (já desnormalizados)")
+                
+            except Exception as e:
+                print(f"   ERRO ao ler CSV!")
+                print(f"   Arquivo tentado: {csv_filename}")
+                print(f"   Erro: {e}")
+                print(f"   Traceback completo:")
+                import traceback
+                traceback.print_exc()
+                print(f"Usando dados passados como fallback...")
+                # Fallback para dados originais
+                dates = pd.to_datetime(dates)
+                y_true = y_true[:20]
+                y_pred = y_pred[:20]
+                dates = dates[:20]
+                y_true = np.ravel(y_true)
+                y_pred = np.ravel(y_pred)
+                dates = np.ravel(dates)
+        else:
+            print(f"Modelo antigo (não corrigido): {modelname}")
+            # Modelos antigos - comportamento original
+            try:
+                # Carregar o scaler salvo
+                scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
+                scaler = joblib.load(scaler_file)
+            except Exception as e:
+                print(f"Aviso: Não foi possível carregar o scaler: {e}")
+                print("Gerando gráfico com valores normalizados...")
+                scaler = None
 
-        # Desnormalizar os dados
-        y_true = scaler.inverse_transform(y_true.reshape(-1, 1))
-        y_pred = scaler.inverse_transform(y_pred.reshape(-1, 1))
+            # Convertendo as datas para o formato datetime
+            dates = pd.to_datetime(dates)
+            
+            # Usar apenas os 20 primeiros dados
+            y_true = y_true[:20]
+            y_pred = y_pred[:20]
+            dates = dates[:20]
 
-        y_true = np.ravel(y_true)
-        y_pred = np.ravel(y_pred)
-        dates = np.ravel(dates)
+            # Desnormalizar os dados (se scaler disponível) - APENAS MODELOS ANTIGOS
+            if scaler is not None:
+                try:
+                    y_true = scaler.inverse_transform(y_true.reshape(-1, 1))
+                    y_pred = scaler.inverse_transform(y_pred.reshape(-1, 1))
+                except Exception as e:
+                    print(f"Aviso: Erro ao desnormalizar dados: {e}")
+                    print("Usando valores sem desnormalização...")
+                    y_true = y_true.reshape(-1, 1)
+                    y_pred = y_pred.reshape(-1, 1)
+            else:
+                y_true = y_true.reshape(-1, 1)
+                y_pred = y_pred.reshape(-1, 1)
 
+            y_true = np.ravel(y_true)
+            y_pred = np.ravel(y_pred)
+            dates = np.ravel(dates)
+
+        print(f"\n📊 Preparando dados para plotagem:")
+        print(f"   dates: {len(dates)} pontos")
+        print(f"   y_true: {len(y_true)} pontos (min={np.min(y_true):.4f}, max={np.max(y_true):.4f})")
+        print(f"   y_pred: {len(y_pred)} pontos (min={np.min(y_pred):.4f}, max={np.max(y_pred):.4f})")
+        
         df = pd.DataFrame({
             'dates': dates,
             'y_true': y_true,
@@ -484,6 +627,9 @@ class SPTI(QWidget):
         dates_sorted = df_sorted['dates']
         y_true_sorted = df_sorted['y_true']
         y_pred_sorted = df_sorted['y_pred']
+        
+        print(f"\n🎨 Gerando gráfico matplotlib...")
+        print(f"   Título: Previsão de LONGTIME vs. Valor Real {modelname}")
 
         plt.figure(figsize=(10, 6))
         date_strings_sorted = [str(date.date()) for date in dates_sorted]
@@ -505,6 +651,7 @@ class SPTI(QWidget):
 
         prediction_filename = os.path.join(self.output_directory, f"prediction_plot_{modelname}.jpg")
         plt.savefig(prediction_filename)
+        print(f"Gráfico de previsão (bolinhas azuis e quadrados vermelhos) salvo em: {prediction_filename}")
         plt.close()
         self.show_image(prediction_filename)
         self.plot_prediction_block(y_true, y_pred, modelname)
@@ -517,7 +664,9 @@ class SPTI(QWidget):
         scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = os.path.join(self.base_dir, "PrevisoesDosModelos(Block)")
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        self.output_directory = os.path.join(self.base_dir, model_dir_suffix, "PrevisoesDosModelos(Block)")
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados
@@ -559,7 +708,9 @@ class SPTI(QWidget):
         scaler_file = os.path.join(self.base_dir, "TratamentoDeDados", "scaler.pkl")
         scaler = joblib.load(scaler_file)
 
-        self.output_directory = os.path.join(self.base_dir, "PrevisoesDosModelos(BoxPlot)")
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        self.output_directory = os.path.join(self.base_dir, model_dir_suffix, "PrevisoesDosModelos(BoxPlot)")
         os.makedirs(self.output_directory, exist_ok=True)
 
         # Desnormalizar os dados
@@ -598,7 +749,9 @@ class SPTI(QWidget):
 
 
     def plot_metrics(self, mse, rmse, modelname):
-        output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         
@@ -626,7 +779,9 @@ class SPTI(QWidget):
         self.show_image(metrics_filename)
 
     def plot_metric_boxplot(self, mse_list, rmse_list, modelname):
-        output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(modelname)
+        output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
 
@@ -658,13 +813,25 @@ class SPTI(QWidget):
         self.show_image(metrics_filename)
         plt.close() 
         self.plot_mse_progression(mse_list,modelname)
-        self.plot_metrics_comparison_boxplot()
+        self.plot_metrics_comparison_boxplot(modelname=modelname)
 
-    def plot_metrics_comparison_boxplot(self, shared_csv_file="shared_model_metrics_list.csv"):
-        output_directory = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
+    def plot_metrics_comparison_boxplot(self, shared_csv_file="shared_model_metrics_list.csv", model_type="Old", modelname=None):
+        """Plot boxplot de métricas - compatível com nova estrutura de pastas"""
+        # Se modelname foi fornecido, determinar automaticamente o tipo
+        if modelname:
+            model_dir_suffix = self._get_model_directory_suffix(modelname)
+            output_directory = os.path.join(self.base_dir, model_dir_suffix, "RelatorioDosModelos(CSV)")
+            output_directory1 = os.path.join(self.base_dir, model_dir_suffix, "ComparacaoMetricas(BoxPlot)")
+        else:
+            # Usar model_type fornecido
+            if model_type == "Old":
+                output_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosOlds/RelatorioDosModelos(CSV)")
+                output_directory1 = os.path.join(self.base_dir, "DadosDoPostreino/ModelosOlds/ComparacaoMetricas(BoxPlot)")
+            else:
+                output_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/RelatorioDosModelos(CSV)")
+                output_directory1 = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/ComparacaoMetricas(BoxPlot)")
+        
         os.makedirs(output_directory, exist_ok=True)
-
-        output_directory1 = os.path.join(self.base_dir, "ComparacaoMetricas(BoxPlot)")
         os.makedirs(output_directory1, exist_ok=True)
         
         # Caminho completo do arquivo CSV
@@ -724,10 +891,24 @@ class SPTI(QWidget):
         plt.close()
 
         print(f"Gráficos de comparação de MSE e RMSE salvos com sucesso.")
-        self.plot_difference_comparison_boxplot()
+        # Passar modelname se disponível
+        if modelname:
+            self.plot_difference_comparison_boxplot(modelname=modelname)
+        else:
+            self.plot_difference_comparison_boxplot(model_type=model_type)
 
-    def plot_difference_comparison_boxplot(self, shared_csv_file="shared_model_difference_list.csv"):
-        output_directory = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
+    def plot_difference_comparison_boxplot(self, shared_csv_file="shared_model_difference_list.csv", model_type="Old", modelname=None):
+        """Plot boxplot de diferenças - compatível com nova estrutura de pastas"""
+        # Se modelname foi fornecido, determinar automaticamente o tipo
+        if modelname:
+            model_dir_suffix = self._get_model_directory_suffix(modelname)
+            output_directory = os.path.join(self.base_dir, model_dir_suffix, "RelatorioDosModelos(CSV)")
+        else:
+            # Usar model_type fornecido
+            if model_type == "Old":
+                output_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosOlds/RelatorioDosModelos(CSV)")
+            else:
+                output_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/RelatorioDosModelos(CSV)")
         os.makedirs(output_directory, exist_ok=True)
         
         # Caminho completo do arquivo CSV
@@ -744,7 +925,27 @@ class SPTI(QWidget):
             reader = csv.DictReader(csv_file)
             for row in reader:
                 model_names.append(row['Model Name'])
-                differences.append(list(map(float, row['Difference'].split(','))))
+                
+                # Tratar ambos os formatos: antigo '[-0.06992126]' e novo '-0.06992126,0.123,...'
+                diff_str = row['Difference']
+                
+                # Se começar com '[', é o formato antigo (array numpy como string)
+                if diff_str.startswith('['):
+                    # Remover todos os colchetes (abertura e fechamento)
+                    diff_str = diff_str.replace('[', '').replace(']', '')
+                    # Substituir espaços por vírgulas
+                    diff_str = diff_str.replace(' ', ',')
+                    # Remover vírgulas múltiplas
+                    while ',,' in diff_str:
+                        diff_str = diff_str.replace(',,', ',')
+                    # Remover vírgulas no início ou fim
+                    diff_str = diff_str.strip(',')
+                    diff_values = [float(x.strip()) for x in diff_str.split(',') if x.strip()]
+                else:
+                    # Formato novo: valores separados por vírgula
+                    diff_values = [float(x.strip()) for x in diff_str.split(',') if x.strip()]
+                
+                differences.append(diff_values)
 
         # Boxplot para as diferenças
         plt.figure(figsize=(12, 6))
@@ -760,7 +961,14 @@ class SPTI(QWidget):
         plt.grid(axis='y')
         plt.tight_layout()
 
-        output_directory1 = os.path.join(self.base_dir, "PrevisaoDosModelos(Diferenca)")
+        # Usar o mesmo model_dir_suffix para salvar o gráfico
+        if modelname:
+            output_directory1 = os.path.join(self.base_dir, model_dir_suffix, "PrevisaoDosModelos(Diferenca)")
+        else:
+            if model_type == "Old":
+                output_directory1 = os.path.join(self.base_dir, "DadosDoPostreino/ModelosOlds/PrevisaoDosModelos(Diferenca)")
+            else:
+                output_directory1 = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/PrevisaoDosModelos(Diferenca)")
         os.makedirs(output_directory1, exist_ok=True)
 
         difference_filename = os.path.join(output_directory1, "boxplot_difference_comparison.jpg")
@@ -781,14 +989,48 @@ class SPTI(QWidget):
         layout.addWidget(image_label, alignment=Qt.AlignCenter)  # Centraliza o QLabel dentro do layout
         self.main_layout.addLayout(layout)
     
-    def plot_metrics_shared(self):
-        intput_directory = os.path.join(self.base_dir, "RelatorioDosModelos(CSV)")
-        # Create the output directory if it doesn't exist
+    def plot_metrics_shared_old(self):
+        """Exibe métricas dos modelos ANTIGOS (versão original)"""
+        intput_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosOlds/RelatorioDosModelos(CSV)")
         metrics_filename = os.path.join(intput_directory, 'shared_model_metrics.csv')
-        os.makedirs(intput_directory, exist_ok=True)
-
-        # Carregar o CSV com as métricas compartilhadas
-        metrics_df = pd.read_csv(metrics_filename)
+        
+        # Verificar se o arquivo existe
+        if not os.path.exists(metrics_filename):
+            QMessageBox.warning(self, "Aviso", 
+                f"Arquivo de métricas não encontrado!\n\n"
+                f"Execute os modelos antigos (GRU, LSTM, RNN, TCN) primeiro.\n"
+                f"Caminho esperado: {metrics_filename}")
+            return
+        
+        try:
+            # Carregar o CSV com as métricas compartilhadas
+            metrics_df = pd.read_csv(metrics_filename)
+            self._plot_metrics_comparison(metrics_df, "ModelosOlds", "Modelos Antigos")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao carregar métricas dos modelos antigos:\n{str(e)}")
+    
+    def plot_metrics_shared_new(self):
+        """Exibe métricas dos modelos NOVOS (versão corrigida)"""
+        intput_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosNew/RelatorioDosModelos(CSV)")
+        metrics_filename = os.path.join(intput_directory, 'shared_model_metrics.csv')
+        
+        # Verificar se o arquivo existe
+        if not os.path.exists(metrics_filename):
+            QMessageBox.warning(self, "Aviso", 
+                f"Arquivo de métricas não encontrado!\n\n"
+                f"Execute os modelos corrigidos (GRU_corrigido, LSTM_corrigido, etc) primeiro.\n"
+                f"Caminho esperado: {metrics_filename}")
+            return
+        
+        try:
+            # Carregar o CSV com as métricas compartilhadas
+            metrics_df = pd.read_csv(metrics_filename)
+            self._plot_metrics_comparison(metrics_df, "ModelosNew", "Modelos Novos (Corrigidos)")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao carregar métricas dos modelos novos:\n{str(e)}")
+    
+    def _plot_metrics_comparison(self, metrics_df, folder_suffix, title_suffix):
+        """Função auxiliar para plotar comparação de métricas"""
 
         metrics_to_plot = ['MSE', 'RMSE', 'R²']
 
@@ -806,7 +1048,7 @@ class SPTI(QWidget):
             bars = plt.bar(model_names, metric_values, color=colors, edgecolor='black')
             plt.xlabel('Modelos')
             plt.ylabel('Valor')
-            plt.title(f'Comparação de {metric} entre Modelos')
+            plt.title(f'Comparação de {metric} - {title_suffix}')
 
             # Adicionar os valores no topo das barras
             for i, value in enumerate(metric_values):
@@ -819,7 +1061,8 @@ class SPTI(QWidget):
             plt.grid(axis='y')
             plt.tight_layout()
 
-            output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
+            # Salvar em pasta específica para o tipo de modelo dentro de DadosDoPostreino
+            output_directory = os.path.join(self.base_dir, f"DadosDoPostreino/{folder_suffix}/MetricaDosModelos")
             os.makedirs(output_directory, exist_ok=True)
 
             # Salvar a imagem do gráfico
@@ -828,8 +1071,9 @@ class SPTI(QWidget):
             self.show_image(metrics_filename)
     
     def plot_mse_progression(self,mse_values,model_name):
-
-        output_directory = os.path.join(self.base_dir, "MetricaDosModelos")
+        # Determinar diretório baseado no tipo de modelo (Old/New)
+        model_dir_suffix = self._get_model_directory_suffix(model_name)
+        output_directory = os.path.join(self.base_dir, model_dir_suffix, "MetricaDosModelos")
         # Create the output directory if it doesn't exist
         os.makedirs(output_directory, exist_ok=True)
         plt.figure(figsize=(10, 6))

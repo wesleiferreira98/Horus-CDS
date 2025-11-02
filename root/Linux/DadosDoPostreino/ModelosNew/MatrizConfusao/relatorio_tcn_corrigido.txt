@@ -1,0 +1,18 @@
+RELATÓRIO TCN CORRIGIDO - SEM VAZAMENTO TEMPORAL
+============================================================
+Acurácia: 1.000 (100.0%)
+Correções aplicadas:
+- Divisão temporal (não aleatória)
+- Features calculadas separadamente
+- StandardScaler fit apenas no treino
+- Balanceamento de classes
+
+              precision    recall  f1-score   support
+
+      ilegal       0.00      0.00      0.00         0
+    suspeito       0.00      0.00      0.00         0
+      válido       1.00      1.00      1.00      4288
+
+    accuracy                           1.00      4288
+   macro avg       0.33      0.33      0.33      4288
+weighted avg       1.00      1.00      1.00      4288

@@ -7,7 +7,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.base import BaseEstimator, RegressorMixin
-from imblearn.over_sampling import SMOTE
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import GRU, Dense # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
@@ -54,12 +53,12 @@ class TrainingThreadGRU(QThread):
     def __init__(self, data_set):
         super().__init__()
         self.data_set = data_set
-        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.X_train = None
         self.X_test = None
         self.y_train = None
         self.y_test = None
         self.logModel = LogTrain("GRU","08:30")
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def build_data(self, data):
         data['TXTDATE'] = pd.to_datetime(data['TXTDATE'])
@@ -97,8 +96,8 @@ class TrainingThreadGRU(QThread):
         self.X_train = preprocessor.fit_transform(self.X_train)
         self.X_test = preprocessor.transform(self.X_test)
 
-        # Apply SMOTE for data balancing
-        self.X_train, self.y_train = self.apply_smote(self.X_train, self.y_train)
+        # Augment data
+        self.X_train, self.y_train = self.augment_data(self.X_train, self.y_train)
 
         # Expand dimensions for GRU input
         self.X_train = np.expand_dims(self.X_train, axis=-1)
@@ -179,8 +178,8 @@ class TrainingThreadGRU(QThread):
             # Adicione outras métricas conforme necessário
         }
 
-        # Instanciar e salvar o relatório
-        relatorio = RelatorioDosModelos(best_model, models_and_results, metrics)
+        # Instanciar e salvar o relatório (modelo original - Old)
+        relatorio = RelatorioDosModelos(best_model, models_and_results, metrics, model_type="Old")
         relatorio.save_reports_CSV_PDF()
         relatorio.save_shared_metrics()  # Adiciona as métricas ao CSV compartilhado
         relatorio.save_shared_metrics_list(mse_list,rmse_list,"Modelo GRU")
@@ -204,45 +203,6 @@ class TrainingThreadGRU(QThread):
             data[f'LONGTIME_LAG_{lag}'] = data['LONGTIME'].shift(lag)
         return data
 
-    def apply_smote(self, X, y):
-        """
-        Aplica SMOTE para balanceamento de dados em problemas de regressão.
-        Para regressão, primeiro discretiza o target em bins e depois aplica SMOTE.
-        """
-        try:
-            # Para regressão, precisamos discretizar o target primeiro
-            # Criamos bins baseados nos quartis
-            quartiles = np.quantile(y, [0.25, 0.5, 0.75])
-            y_binned = np.digitize(y, quartiles)
-            
-            # Aplicamos SMOTE nos dados com target discretizado
-            smote = SMOTE(random_state=42, k_neighbors=min(5, len(np.unique(y_binned))-1))
-            X_resampled, y_binned_resampled = smote.fit_resample(X, y_binned)
-            
-            # Para reconstruir o y contínuo, usamos interpolação baseada nos bins
-            # Mapeamos os bins de volta para valores contínuos usando a média dos valores originais em cada bin
-            bin_means = {}
-            for bin_val in np.unique(y_binned):
-                mask = y_binned == bin_val
-                if np.any(mask):
-                    bin_means[bin_val] = np.mean(y[mask])
-                else:
-                    bin_means[bin_val] = np.mean(y)  # fallback
-            
-            # Reconstruímos o y contínuo
-            y_resampled = np.array([bin_means[bin_val] for bin_val in y_binned_resampled])
-            
-            # Adicionamos ruído gaussiano para restaurar a variabilidade contínua
-            noise_std = np.std(y) * 0.1  # 10% do desvio padrão original
-            y_resampled += np.random.normal(0, noise_std, len(y_resampled))
-            
-            return X_resampled, y_resampled
-            
-        except Exception as e:
-            print(f"Erro ao aplicar SMOTE: {e}")
-            print("Aplicando data augmentation tradicional como fallback...")
-            return self.augment_data(X, y)
-
     def augment_data(self, X, y, augmentation_factor=5, noise_level=0.1):
         augmented_X, augmented_y = [X], [y]
         for _ in range(augmentation_factor):
@@ -253,8 +213,9 @@ class TrainingThreadGRU(QThread):
         return np.concatenate(augmented_X), np.concatenate(augmented_y)
     
     def save_model(self,model):
-        self.output_directory = os.path.join(self.base_dir, "ModelosComplilados")
+        self.output_directory = os.path.join(self.base_dir, "DadosDoPostreino/ModelosOlds/ModelosComplilados")
         # Create the output directory if it doesn't exist
         os.makedirs(self.output_directory, exist_ok=True)
         h5_filename = os.path.join(self.output_directory,"gru_model.h5")
         model.save(h5_filename)
+        print(f"Modelo GRU salvo em: {h5_filename}")
