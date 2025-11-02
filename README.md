@@ -21,6 +21,7 @@ Os selos considerados para o Hórus-CDS são:
 Este repositório contém documentação completa para instalação e uso do sistema:
 
 ### Documentação Principal
+
 * **[README.md](README.md)** - Documentação principal do projeto
 * **[docs/QUICKSTART.md](docs/QUICKSTART.md)** - Guia rápido de instalação e primeiros passos (recomendado para iniciantes)
 * **[docs/CUDA_INSTALLATION.md](docs/CUDA_INSTALLATION.md)** - Guia completo de instalação CUDA e cuDNN para aceleração GPU
@@ -28,15 +29,18 @@ Este repositório contém documentação completa para instalação e uso do sis
 * **[root/API/README_API.md](root/API/README_API.md)** - Documentação específica da API REST
 
 ### Scripts de Instalação e Configuração
+
 * **[scripts/install.sh](scripts/install.sh)** - Script de instalação automática para Linux/macOS (interativo)
 * **[scripts/install.bat](scripts/install.bat)** - Script de instalação automática para Windows (interativo)
 * **[scripts/test_gpu_setup.py](scripts/test_gpu_setup.py)** - Script de validação automática da configuração GPU/CUDA
 
 ### Configuração Docker
+
 * **[docker-compose.yml](docker-compose.yml)** - Configuração Docker padrão (CPU-only)
 * **[docker-compose-gpu.yml](docker-compose-gpu.yml)** - Configuração Docker com suporte GPU
 
 ### Documentação Complementar
+
 * **[docs/INSTALL_SCRIPTS.md](docs/INSTALL_SCRIPTS.md)** - Documentação detalhada dos scripts de instalação
 * **[docs/CHANGELOG_CUDA.md](docs/CHANGELOG_CUDA.md)** - Registro detalhado das adições de documentação CUDA
 * **[docs/SUMMARY_CUDA_DOCS.md](docs/SUMMARY_CUDA_DOCS.md)** - Sumário executivo da documentação GPU/CUDA
@@ -439,35 +443,35 @@ python main.py
 
 ![1762038039413](image/README/1762038039413.png)
 
-Figura 1: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
+Figura 2: Interfaçe inicial do Hórus-CDS. Fonte: Dos autores
 
 ![1762037974214](image/README/1762037974214.png)
 
-Figura 2: Interfaçe inicial do Hórus-CDS pós treinamento. Fonte: Dos autores
+Figura 3: Interfaçe inicial do Hórus-CDS pós treinamento. Fonte: Dos autores
 
 ![1729628644600](image/README/1729628644600.png)
 
-Figura 3: Barra de progresso do carregamento do data set. Fonte: Dos autores
+Figura 4: Barra de progresso do carregamento do data set. Fonte: Dos autores
 
 ![1729628804168](image/README/1729628804168.png)
 
-Figura 4: Planinha do Data set. Fonte: Dos autores
+Figura 5: Planinha do Data set. Fonte: Dos autores
 
 ![1729628949486](image/README/1729628949486.png)
 
-Figura 5: Confirmação do Modelo escolhido. Fonte: Dos autores
+Figura 6: Confirmação do Modelo escolhido. Fonte: Dos autores
 
 ![1729629009966](image/README/1729629009966.png)
 
-Figura 6: Tempo estimado de otimização do modelo. Fonte: Dos autores
+Figura 7: Tempo estimado de otimização do modelo. Fonte: Dos autores
 
 ![1729631245388](image/README/1729631245388.png)
 
-Figura 7: Progresso do teste. Fonte: Dos autores
+Figura 8: Progresso do teste. Fonte: Dos autores
 
 ![1729629159083](image/README/1729629159083.png)
 
-Figura 7: Gráfico gerado pós treinamento. Fonte: Dos autores
+Figura 9: Gráfico gerado pós treinamento. Fonte: Dos autores
 
 ---
 
@@ -552,19 +556,19 @@ docker-compose logs -f horus-web
 
   ![1737125366674](image/README/1737125366674.png)
 
-- Figura 8: Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
+- Figura 10: Painel de monitoramento do Hórus-CDS. Fonte: Dos autores.
 
   ![1737075365354](image/README/1737075365354.png)
-- Figura 8: Gráficos do Painel do Hórus-CDS. Fonte: Dos autores.
+- Figura 11: Gráficos do Painel do Hórus-CDS. Fonte: Dos autores.
 
   ![1729864786627](image/README/1729864786627.png)
-- Figura 10: Planilha com informações detalhada dos pacotes: Fonte dos Autores
+- Figura 12: Planilha com informações detalhada dos pacotes: Fonte dos Autores
 
   ![1737125445590](image/README/1737125445590.png)![1737075549620](image/README/1737075549620.png)
-- Figura 11: Dashboard acessado pelo Celular: Fonte dos Autores
+- Figura 13: Dashboard acessado pelo Celular: Fonte dos Autores
 
   ![1729865640312](image/README/1729865640312.png)
-- Figura 12: Planilha vista pelo Celuar Fonte dos Autores
+- Figura 14: Planilha vista pelo Celuar Fonte dos Autores
 
 ---
 
