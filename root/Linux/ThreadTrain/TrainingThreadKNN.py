@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
@@ -50,6 +51,7 @@ class TrainingThreadKNN(QThread):
         self.categories_test = None
         self.category_thresholds = None
         self.logModel = LogTrain("KNN","01:51")
+        self.fast_mode = os.getenv("HORUS_FAST_CURVES", "0") == "1"
 
     def build_data(self, data):
         self.category_thresholds = self.compute_category_thresholds(data)
@@ -67,6 +69,8 @@ class TrainingThreadKNN(QThread):
         target = 'LONGTIME'
 
         data = data.dropna()  # Remove rows com valores NaN resultantes do rolling e shifting
+        if self.fast_mode:
+            data = data.tail(min(len(data), 1500)).copy()
 
         X = data[features]
         y = data[target]
@@ -97,6 +101,15 @@ class TrainingThreadKNN(QThread):
     def run(self):
         self.build_data(self.data_set)
 
+        if self.fast_mode:
+            print("HORUS_FAST_CURVES=1 detectado: treino reduzido para gerar curvas ROC/PR.")
+            n_iter = 3
+            fit_rounds = 3
+            self.logModel.update_estimated_time("00:20")
+        else:
+            n_iter = 10
+            fit_rounds = 10
+
         param_distributions = {
             'n_neighbors': [3, 5, 7, 9],
             'weights': ['uniform', 'distance'],
@@ -105,14 +118,14 @@ class TrainingThreadKNN(QThread):
 
         model = KNNRegressor()
 
-        search = RandomizedSearchCV(model, param_distributions, n_iter=10, cv=3, scoring='neg_mean_squared_error', verbose=1, n_jobs=1)
+        search = RandomizedSearchCV(model, param_distributions, n_iter=n_iter, cv=3, scoring='neg_mean_squared_error', verbose=1, n_jobs=1)
         search.fit(self.X_train, self.y_train)
 
         best_model = search.best_estimator_
         mse_list = []
         rmse_list = []
          # Note que a cada época, o modelo está sendo treinado novamente.
-        for epoch in range(10):
+        for epoch in range(fit_rounds):
             best_model.fit(self.X_train, self.y_train)
             test_score = best_model.score(self.X_test, self.y_test)
             
@@ -126,7 +139,7 @@ class TrainingThreadKNN(QThread):
             mse_list.append(mse)
             rmse_list.append(rmse)
             self.test_score = test_score
-            self.update_progress.emit((epoch + 1) / 10)
+            self.update_progress.emit((epoch + 1) / fit_rounds)
 
         test_score = best_model.score(self.X_test, self.y_test)
         mse_array = np.array(mse_list)  # Convertendo lista para array NumPy

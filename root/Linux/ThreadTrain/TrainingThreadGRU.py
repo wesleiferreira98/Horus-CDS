@@ -61,6 +61,7 @@ class TrainingThreadGRU(QThread):
         self.category_thresholds = None
         self.logModel = LogTrain("GRU","08:30")
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.fast_mode = os.getenv("HORUS_FAST_CURVES", "0") == "1"
 
     def build_data(self, data):
         self.category_thresholds = self.compute_category_thresholds(data)
@@ -78,6 +79,8 @@ class TrainingThreadGRU(QThread):
         target = 'LONGTIME'
 
         data = data.dropna()  # Remove rows with NaN values resulting from rolling and shifting
+        if self.fast_mode:
+            data = data.tail(min(len(data), 1500)).copy()
 
         X = data[features]
         y = data[target]
@@ -120,6 +123,17 @@ class TrainingThreadGRU(QThread):
     def run(self):
         self.build_data(self.data_set)
 
+        if self.fast_mode:
+            print("HORUS_FAST_CURVES=1 detectado: treino reduzido para gerar curvas ROC/PR.")
+            n_iter = 3
+            epochs = 8
+            batch_size = 32
+            self.logModel.update_estimated_time("00:50")
+        else:
+            n_iter = 10
+            epochs = 40
+            batch_size = 64
+
         param_distributions = {
             'units': [32, 64, 128],
             'activation': ['relu', 'tanh'],
@@ -128,7 +142,7 @@ class TrainingThreadGRU(QThread):
         self.logModel.show()
         model = KerasGRURegressor(input_shape=(self.X_train.shape[1], 1))
 
-        search = RandomizedSearchCV(model, param_distributions, n_iter=10, cv=3, scoring=self.custom_scorer, verbose=1)
+        search = RandomizedSearchCV(model, param_distributions, n_iter=n_iter, cv=3, scoring=self.custom_scorer, verbose=1)
         search.fit(self.X_train, self.y_train)
 
         best_model = search.best_estimator_
@@ -138,13 +152,13 @@ class TrainingThreadGRU(QThread):
         # Gerar sumário do modelo
         self.logModel.hide()
         modelSu = ModelSummary(keras_model, 'GRU_model_summary.pdf', self.X_test.shape, self.y_test.shape)
-        for epoch in range(40):
-            best_model.fit(self.X_train, self.y_train, epochs=1, batch_size=64, validation_split=0.2, verbose=0)
+        for epoch in range(epochs):
+            best_model.fit(self.X_train, self.y_train, epochs=1, batch_size=batch_size, validation_split=0.2, verbose=0)
             test_loss = best_model.model.evaluate(self.X_test, self.y_test, verbose=0)
             self.test_mse = test_loss[1]
             mse_list.append(self.test_mse)
             rmse_list.append(np.sqrt(self.test_mse))
-            self.update_progress.emit((epoch + 1) / 40)
+            self.update_progress.emit((epoch + 1) / epochs)
         self.save_model(best_model.model)
         test_loss = best_model.model.evaluate(self.X_test, self.y_test)
         test_mse = test_loss[1]

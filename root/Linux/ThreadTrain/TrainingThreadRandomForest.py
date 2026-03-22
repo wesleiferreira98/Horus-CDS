@@ -57,6 +57,7 @@ class TrainingThreadRandomForest(QThread):
         self.categories_test = None
         self.category_thresholds = None
         self.logModel = LogTrain("RF","03:10")
+        self.fast_mode = os.getenv("HORUS_FAST_CURVES", "0") == "1"
 
     def build_data(self, data):
         self.category_thresholds = self.compute_category_thresholds(data)
@@ -74,6 +75,8 @@ class TrainingThreadRandomForest(QThread):
         target = 'LONGTIME'
 
         data = data.dropna()  # Remove rows with NaN values resulting from rolling and shifting
+        if self.fast_mode:
+            data = data.tail(min(len(data), 1500)).copy()
 
         X = data[features]
         y = data[target]
@@ -103,6 +106,12 @@ class TrainingThreadRandomForest(QThread):
 
     def run(self):
         self.build_data(self.data_set)
+        if self.fast_mode:
+            print("HORUS_FAST_CURVES=1 detectado: treino reduzido para gerar curvas ROC/PR.")
+            n_iter = 3
+            self.logModel.update_estimated_time("00:25")
+        else:
+            n_iter = 10
         self.logModel.show()
         param_distributions = {
             'n_estimators': [100, 200, 300],
@@ -113,7 +122,7 @@ class TrainingThreadRandomForest(QThread):
 
         model = RandomForestRegressorWrapper()
 
-        search = RandomizedSearchCV(model, param_distributions, n_iter=10, cv=3, scoring='neg_mean_squared_error', verbose=1, n_jobs=1)
+        search = RandomizedSearchCV(model, param_distributions, n_iter=n_iter, cv=3, scoring='neg_mean_squared_error', verbose=1, n_jobs=1)
         search.fit(self.X_train, self.y_train)
 
         best_model = search.best_estimator_

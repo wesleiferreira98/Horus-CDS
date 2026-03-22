@@ -45,6 +45,7 @@ class SPTI(QWidget):
         self.processed_data = False
         self.threadpool = QThreadPool()
         self.model_select = None
+        self.current_training_model = None
         
         # Configurar captura de console
         self.console_capture = None
@@ -111,6 +112,8 @@ class SPTI(QWidget):
         self.train_button = QPushButton('Selecionar Data SET')
         self.train_model_button = QPushButton('Iniciar Treinamento')
         self.model_select_train = QLabel("Selecione o Modelo de treinamento")
+        self.fast_curves_checkbox = QCheckBox("Modo rapido para gerar ROC/PR")
+        self.fast_curves_checkbox.setToolTip("Reduz amostra, busca e iteracoes dos modelos antigos para gerar curvas rapidamente.")
         self.grafic_models_old_button = QPushButton('📊 Dados Treinamento - Modelos Antigos')
         self.grafic_models_new_button = QPushButton('📊 Dados Treinamento - Modelos Novos')
         self.grafic_logs = QPushButton('Capturar dados de Log') 
@@ -157,6 +160,7 @@ class SPTI(QWidget):
         integration_rb_label = QVBoxLayout()
         integration_rb_label.addWidget(self.model_select_train)
         integration_rb_label.addLayout(rb_train_layout)
+        integration_rb_label.addWidget(self.fast_curves_checkbox)
         
         # Adicionar label informativo de GPU
         gpu_info_layout = QHBoxLayout()
@@ -387,6 +391,9 @@ class SPTI(QWidget):
             QMessageBox.critical(self, "Erro", "Nenhum modelo de treinamento selecionado.")
             return
 
+        self.apply_fast_mode_setting()
+        self.current_training_model = selected_model
+
         QMessageBox.information(self, "Treinamento", f"Treinamento iniciado com o modelo {selected_model}.")
         
         # Ativar console e iniciar captura de logs
@@ -412,6 +419,7 @@ class SPTI(QWidget):
         selected_model = self.get_selected_model()
         if selected_model:
             self.model_select_train.setText(f"Treinar com Modelo {selected_model}")
+            self.update_fast_mode_availability(selected_model)
     
     def get_selected_model(self):
         if self.rb_RandomForest.isChecked():
@@ -439,6 +447,39 @@ class SPTI(QWidget):
         elif self.rb_TCN_corrigido.isChecked():
             return 'TCN_corrigido'
         return None
+
+    def apply_fast_mode_setting(self):
+        if self.fast_curves_checkbox.isChecked():
+            os.environ["HORUS_FAST_CURVES"] = "1"
+        else:
+            os.environ.pop("HORUS_FAST_CURVES", None)
+
+    def update_fast_mode_availability(self, selected_model):
+        old_models = {
+            'Random Forest',
+            'KNN',
+            'LSTM',
+            'ARIMA',
+            'TCN',
+            'RNN',
+            'GRU',
+            'Horus-V0',
+        }
+
+        is_old_model = selected_model in old_models
+        self.fast_curves_checkbox.setEnabled(is_old_model)
+
+        if is_old_model:
+            self.fast_curves_checkbox.setText("Modo rapido para gerar ROC/PR")
+            self.fast_curves_checkbox.setToolTip(
+                "Reduz amostra, busca e iteracoes dos modelos antigos para gerar curvas rapidamente."
+            )
+        else:
+            self.fast_curves_checkbox.setChecked(False)
+            self.fast_curves_checkbox.setText("Modo rapido indisponivel para modelos corrigidos")
+            self.fast_curves_checkbox.setToolTip(
+                "Os modelos corrigidos nao usam o modo rapido de curvas da linha antiga."
+            )
 
     def train_model(self, model_name):
         if model_name == 'GRU':
@@ -487,8 +528,46 @@ class SPTI(QWidget):
             if hasattr(self, 'training_console'):
                 self.training_console.log_signal.emit("")
                 self.training_console.log_signal.emit("=== Processo finalizado ===")
+
+            self.show_roc_pr_curves_for_current_model()
         except Exception as e:
             print(f"Erro no callback de finalizacao: {e}")
+
+    def get_report_curve_model_names(self, selected_model):
+        mapping = {
+            'Random Forest': ['Modelo RF'],
+            'KNN': ['Modelo KNN'],
+            'LSTM': ['Modelo LSTM'],
+            'ARIMA': ['Modelo ARIMA'],
+            'TCN': ['Modelo TCN'],
+            'RNN': ['Modelo RNN'],
+            'GRU': ['Modelo GRU'],
+            'Horus-V0': ['Horus-V0'],
+            'GRU_corrigido': ['Modelo GRU Corrigido'],
+            'LSTM_corrigido': ['Modelo LSTM Corrigido'],
+            'RNN_corrigido': ['Modelo RNN Corrigido'],
+            'TCN_corrigido': ['Modelo TCN Corrigido'],
+        }
+        return mapping.get(selected_model, [])
+
+    def show_roc_pr_curves_for_current_model(self):
+        if not self.current_training_model:
+            return
+
+        model_dir_suffix = self._get_model_directory_suffix(self.current_training_model)
+        curve_directory = os.path.join(self.base_dir, model_dir_suffix, "CurvasROC_PR")
+
+        if not os.path.isdir(curve_directory):
+            return
+
+        for report_name in self.get_report_curve_model_names(self.current_training_model):
+            roc_path = os.path.join(curve_directory, f"roc_curve_{report_name}.jpg")
+            pr_path = os.path.join(curve_directory, f"pr_curve_{report_name}.jpg")
+
+            if os.path.exists(roc_path):
+                self.show_image(roc_path)
+            if os.path.exists(pr_path):
+                self.show_image(pr_path)
 
 
 

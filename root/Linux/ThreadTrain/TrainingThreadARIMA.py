@@ -21,6 +21,7 @@ class TrainingThreadARIMA(QThread):
         self.train_data = None
         self.test_data = None
         self.category_thresholds = None
+        self.fast_mode = os.getenv("HORUS_FAST_CURVES", "0") == "1"
 
     def build_data(self, data):
         self.category_thresholds = self.compute_category_thresholds(data)
@@ -34,11 +35,21 @@ class TrainingThreadARIMA(QThread):
         self.train_data = data[:split_index]
         self.test_data = data[split_index:]
 
+        if self.fast_mode:
+            self.train_data = self.train_data.tail(min(len(self.train_data), 500)).copy()
+            self.test_data = self.test_data.head(min(len(self.test_data), 120)).copy()
+
     def run(self):
         self.build_data(self.data_set)
 
+        if self.fast_mode:
+            print("HORUS_FAST_CURVES=1 detectado: treino reduzido para gerar curvas ROC/PR.")
+            arima_order = (2, 1, 0)
+        else:
+            arima_order = (5, 1, 0)
+
         # Treinamento do modelo ARIMA
-        model = ARIMA(self.train_data['LONGTIME'], order=(5, 1, 0))  # Ajustar os parâmetros (p, d, q) conforme necessário
+        model = ARIMA(self.train_data['LONGTIME'], order=arima_order)  # Ajustar os parâmetros (p, d, q) conforme necessário
         model_fit = model.fit()
 
         # Fazer previsões

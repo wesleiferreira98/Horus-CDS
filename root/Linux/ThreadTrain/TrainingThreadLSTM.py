@@ -60,6 +60,7 @@ class TrainingThreadLSTM(QThread):
         self.category_thresholds = None
         self.logModel = LogTrain("LSTM","03:10")
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.fast_mode = os.getenv("HORUS_FAST_CURVES", "0") == "1"
 
     def build_data(self, data):
         self.category_thresholds = self.compute_category_thresholds(data)
@@ -77,6 +78,8 @@ class TrainingThreadLSTM(QThread):
         target = 'LONGTIME'
 
         data = data.dropna()  # Remove rows with NaN values resulting from rolling and shifting
+        if self.fast_mode:
+            data = data.tail(min(len(data), 1500)).copy()
 
         X = data[features]
         y = data[target]
@@ -114,6 +117,17 @@ class TrainingThreadLSTM(QThread):
 
     def run(self):
         self.build_data(self.data_set)
+
+        if self.fast_mode:
+            print("HORUS_FAST_CURVES=1 detectado: treino reduzido para gerar curvas ROC/PR.")
+            n_iter = 3
+            epochs = 8
+            batch_size = 32
+            self.logModel.update_estimated_time("00:40")
+        else:
+            n_iter = 10
+            epochs = 40
+            batch_size = 64
        
         param_distributions = {
             'units': [32, 64, 128],
@@ -123,7 +137,7 @@ class TrainingThreadLSTM(QThread):
         self.logModel.show()
         model = KerasLSTMRegressor(input_shape=(self.X_train.shape[1], 1))
 
-        search = RandomizedSearchCV(model, param_distributions, n_iter=10, cv=3, scoring='neg_mean_squared_error', verbose=1, n_jobs=1)
+        search = RandomizedSearchCV(model, param_distributions, n_iter=n_iter, cv=3, scoring='neg_mean_squared_error', verbose=1, n_jobs=1)
         search.fit(self.X_train, self.y_train)
         mse_list = []
         rmse_list = []
@@ -131,13 +145,13 @@ class TrainingThreadLSTM(QThread):
         keras_model = best_model.model
         modelSu = ModelSummary(keras_model,'LSTM_model_summary.pdf',self.X_test.shape,self.y_test.shape)
         self.logModel.hide()
-        for epoch in range(40):
-            best_model.fit(self.X_train, self.y_train, epochs=1, batch_size=64, validation_split=0.2, verbose=0)
+        for epoch in range(epochs):
+            best_model.fit(self.X_train, self.y_train, epochs=1, batch_size=batch_size, validation_split=0.2, verbose=0)
             test_loss = best_model.model.evaluate(self.X_test, self.y_test, verbose=0)
             self.test_mse = test_loss[1]
             mse_list.append(self.test_mse)
             rmse_list.append(np.sqrt(self.test_mse))
-            self.update_progress.emit((epoch + 1) / 40)
+            self.update_progress.emit((epoch + 1) / epochs)
         self.save_model(best_model.model)
         test_loss = best_model.model.evaluate(self.X_test, self.y_test)
         test_mse = test_loss[1]
@@ -225,6 +239,7 @@ class TrainingThreadLSTM(QThread):
         noise_std_dev = 0.4  # Aumentar a variância do ruído
         noise = np.random.normal(0, noise_std_dev, augmented_X.shape)
         augmented_X += noise
+        return augmented_X, augmented_y
 
     def compute_category_thresholds(self, data):
         categorized = data.dropna(subset=['LONGTIME', 'CATEGORY'])
@@ -234,6 +249,3 @@ class TrainingThreadLSTM(QThread):
         low_threshold = (ilegal.max() + suspeito.min()) / 2 if not ilegal.empty and not suspeito.empty else categorized['LONGTIME'].quantile(0.2)
         high_threshold = (suspeito.max() + valido.min()) / 2 if not suspeito.empty and not valido.empty else categorized['LONGTIME'].quantile(0.8)
         return float(low_threshold), float(high_threshold)
-
-        return augmented_X, augmented_y
-

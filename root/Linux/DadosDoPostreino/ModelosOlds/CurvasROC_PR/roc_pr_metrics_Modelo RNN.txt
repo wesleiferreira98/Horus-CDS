@@ -1,0 +1,17 @@
+ROC/PR METRICS - Modelo RNN
+============================================================
+Threshold ilegal/suspeito: -1.2470919835027439
+Threshold suspeito/valido: -0.9235007267882156
+
+ilegal:
+  ROC AUC: N/A
+  Average Precision: N/A
+suspeito:
+  ROC AUC: N/A
+  Average Precision: N/A
+válido:
+  ROC AUC: N/A
+  Average Precision: N/A
+
+Macro ROC AUC: N/A
+Macro Average Precision: N/A
