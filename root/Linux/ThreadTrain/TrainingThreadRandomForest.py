@@ -54,9 +54,12 @@ class TrainingThreadRandomForest(QThread):
         self.X_test = None
         self.y_train = None
         self.y_test = None
+        self.categories_test = None
+        self.category_thresholds = None
         self.logModel = LogTrain("RF","03:10")
 
     def build_data(self, data):
+        self.category_thresholds = self.compute_category_thresholds(data)
         data['TXTDATE'] = pd.to_datetime(data['TXTDATE'])
         data['Dia_da_Semana'] = data['TXTDATE'].dt.dayofweek
         data['Mês'] = data['TXTDATE'].dt.month
@@ -74,8 +77,11 @@ class TrainingThreadRandomForest(QThread):
 
         X = data[features]
         y = data[target]
+        categories = data['CATEGORY']
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        self.X_train, self.X_test, self.y_train, self.y_test, _, self.categories_test = train_test_split(
+            X, y, categories, test_size=0.2, random_state=42
+        )
         self.dates_test = self.X_test['TXTDATE']
 
         numeric_features = ['Dia_da_Semana', 'Mês', 'Hora', 'LONGTIME_MA', 'LONGTIME_STD', 'LONGTIME_LAG_1', 'LONGTIME_LAG_2', 'LONGTIME_LAG_3']
@@ -163,6 +169,7 @@ class TrainingThreadRandomForest(QThread):
         relatorio = RelatorioDosModelos(best_model, models_and_results, metrics)
         relatorio.save_metrics_pdf_KNN_ARIMA_RF("RandomForest_metrics.pdf")
         relatorio.save_reports_CSV_KNN_ARIMA_RF("RandomForest_results.csv")
+        relatorio.save_roc_pr_curves_regression(self.categories_test, test_results, "Modelo RF", self.category_thresholds)
     def add_moving_average_std(self, data, window_size=3):
         data['TXTDATE'] = pd.to_datetime(data['TXTDATE'])
         data.set_index('TXTDATE', inplace=True)
@@ -232,3 +239,12 @@ class TrainingThreadRandomForest(QThread):
         os.makedirs(self.output_directory, exist_ok=True)
         h5_filename = os.path.join(self.output_directory,"rf_model.h5")
         model.save(h5_filename)
+
+    def compute_category_thresholds(self, data):
+        categorized = data.dropna(subset=['LONGTIME', 'CATEGORY'])
+        ilegal = categorized[categorized['CATEGORY'] == 'ilegal']['LONGTIME']
+        suspeito = categorized[categorized['CATEGORY'] == 'suspeito']['LONGTIME']
+        valido = categorized[categorized['CATEGORY'] == 'válido']['LONGTIME']
+        low_threshold = (ilegal.max() + suspeito.min()) / 2 if not ilegal.empty and not suspeito.empty else categorized['LONGTIME'].quantile(0.2)
+        high_threshold = (suspeito.max() + valido.min()) / 2 if not suspeito.empty and not valido.empty else categorized['LONGTIME'].quantile(0.8)
+        return float(low_threshold), float(high_threshold)

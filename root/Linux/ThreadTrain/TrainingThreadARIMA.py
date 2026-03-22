@@ -20,8 +20,10 @@ class TrainingThreadARIMA(QThread):
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.train_data = None
         self.test_data = None
+        self.category_thresholds = None
 
     def build_data(self, data):
+        self.category_thresholds = self.compute_category_thresholds(data)
         data['TXTDATE'] = pd.to_datetime(data['TXTDATE'])
         data = data.set_index('TXTDATE')
         data = data[~data.index.duplicated(keep='first')]  # Remover duplicatas no índice
@@ -58,6 +60,12 @@ class TrainingThreadARIMA(QThread):
         relatorio = RelatorioDosModelos(model_fit, models_and_results, metrics)
         relatorio.save_metrics_pdf_KNN_ARIMA_RF("ARIMA_metrics.pdf")
         relatorio.save_reports_CSV()
+        relatorio.save_roc_pr_curves_regression(
+            self.test_data['CATEGORY'].values,
+            self.test_data['Predicted'].values,
+            "Modelo ARIMA",
+            self.category_thresholds
+        )
 
         mse_list = []
         rmse_list = []
@@ -103,3 +111,12 @@ class TrainingThreadARIMA(QThread):
         os.makedirs(self.output_directory, exist_ok=True)
         h5_filename = os.path.join(self.output_directory,"tcn_model.h5")
         model.save(h5_filename)
+
+    def compute_category_thresholds(self, data):
+        categorized = data.dropna(subset=['LONGTIME', 'CATEGORY'])
+        ilegal = categorized[categorized['CATEGORY'] == 'ilegal']['LONGTIME']
+        suspeito = categorized[categorized['CATEGORY'] == 'suspeito']['LONGTIME']
+        valido = categorized[categorized['CATEGORY'] == 'válido']['LONGTIME']
+        low_threshold = (ilegal.max() + suspeito.min()) / 2 if not ilegal.empty and not suspeito.empty else categorized['LONGTIME'].quantile(0.2)
+        high_threshold = (suspeito.max() + valido.min()) / 2 if not suspeito.empty and not valido.empty else categorized['LONGTIME'].quantile(0.8)
+        return float(low_threshold), float(high_threshold)

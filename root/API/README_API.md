@@ -13,6 +13,7 @@ root/API/models/
 ├── rnn_model.h5         # Modelo RNN
 ├── lstm_model.h5        # Modelo LSTM  
 ├── gru_model.h5         # Modelo GRU
+├── horus_v0_model.h5    # Modelo MLP Horus-V0
 ├── tcn_model.keras      # Modelo TCN (padrão)
 └── scaler.pkl           # Normalizador (OBRIGATÓRIO)
 ```

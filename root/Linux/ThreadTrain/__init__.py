@@ -5,6 +5,7 @@ from . import TrainingThreadTCN
 from . import TrainingThreadKNN
 from . import TrainingThreadRNN
 from . import TrainingThreadRandomForest
+from . import TrainingThreadMLP
 from . import GRU_corrigido
 from . import LSTM_corrigido
 from . import RNN_corrigido
@@ -18,6 +19,7 @@ __all__ = [
     'TrainingThreadKNN',
     'TrainingThreadRNN',
     'TrainingThreadRandomForest',
+    'TrainingThreadMLP',
     'GRU_corrigido',
     'LSTM_corrigido',
     'RNN_corrigido',

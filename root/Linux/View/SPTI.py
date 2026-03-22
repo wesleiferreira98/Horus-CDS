@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from ThreadTrain import (
     TrainingThreadGRU, TrainingThreadLSTM, TrainingThreadARIMA, 
     TrainingThreadTCN, TrainingThreadKNN, TrainingThreadRNN, 
-    TrainingThreadRandomForest,
+    TrainingThreadRandomForest, TrainingThreadMLP,
     GRU_corrigido, LSTM_corrigido, RNN_corrigido, TCN_corrigido
 )
 import os
@@ -100,6 +100,7 @@ class SPTI(QWidget):
         self.rb_TCN = QRadioButton("Treinar com rede neural TCN")
         self.rb_RNN = QRadioButton("Treinar com rede neural RNN")
         self.rb_GRU = QRadioButton("Treinar com rede neural GRU")
+        self.rb_HorusV0 = QRadioButton("Treinar com rede neural MLP")
         
         # Modelos corrigidos
         self.rb_GRU_corrigido = QRadioButton("Treinar com GRU Corrigido")
@@ -140,6 +141,7 @@ class SPTI(QWidget):
         rb_train_layoutV2.addWidget(self.rb_LSTM)
         rb_train_layoutV2.addWidget(self.rb_RNN)
         rb_train_layoutV2.addWidget(self.rb_GRU)
+        rb_train_layoutV2.addWidget(self.rb_HorusV0)
         
         rb_train_layoutV3 = QVBoxLayout()
         rb_train_layoutV3.addWidget(self.rb_GRU_corrigido)
@@ -374,22 +376,6 @@ class SPTI(QWidget):
     def update_progress(self, progress):
         progress_int = int(progress * 100)
         self.progress_bar.setValue(progress_int)
-        
-        # Quando treinamento finalizar (100%), restaurar stdout/stderr
-        if progress >= 1.0:
-            try:
-                if hasattr(self, '_original_stdout'):
-                    sys.stdout = self._original_stdout
-                if hasattr(self, '_original_stderr'):
-                    sys.stderr = self._original_stderr
-                
-                if hasattr(self, 'training_console'):
-                    self.training_console.log_signal.emit("")
-                    self.training_console.log_signal.emit("=== Treinamento finalizado ===")
-                
-                self.console_capture = None
-            except Exception as e:
-                print(f"Erro ao restaurar streams: {e}")
 
     def start_training(self):
         if not hasattr(self, 'train_data') or self.train_data is None:
@@ -442,6 +428,8 @@ class SPTI(QWidget):
             return 'RNN'
         elif self.rb_GRU.isChecked():
             return 'GRU'
+        elif self.rb_HorusV0.isChecked():
+            return 'Horus-V0'
         elif self.rb_GRU_corrigido.isChecked():
             return 'GRU_corrigido'
         elif self.rb_LSTM_corrigido.isChecked():
@@ -467,6 +455,8 @@ class SPTI(QWidget):
             self.train_thread = TrainingThreadRNN.TrainingThreadRNN(self.train_data)
         elif model_name == 'Random Forest':
             self.train_thread = TrainingThreadRandomForest.TrainingThreadRandomForest(self.train_data)
+        elif model_name == 'Horus-V0':
+            self.train_thread = TrainingThreadMLP.TrainingThreadMLP(self.train_data)
         elif model_name == 'GRU_corrigido':
             self.train_thread = GRU_corrigido.TrainingThreadGRUCorrigido(self.train_data)
         elif model_name == 'LSTM_corrigido':
@@ -492,6 +482,7 @@ class SPTI(QWidget):
             # Restaurar streams
             sys.stdout = self._original_stdout
             sys.stderr = self._original_stderr
+            self.console_capture = None
             
             if hasattr(self, 'training_console'):
                 self.training_console.log_signal.emit("")

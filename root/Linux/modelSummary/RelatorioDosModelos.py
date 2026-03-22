@@ -3,6 +3,12 @@ from modelSummary.ModelSummary import ModelSummary
 from fpdf import FPDF  # Biblioteca para gerar PDFs
 import pandas as pd
 import csv
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score
+from sklearn.preprocessing import label_binarize
 
 class RelatorioDosModelos:
     def __init__(self, model, models_and_results, metrics, model_type="Old"):
@@ -193,3 +199,117 @@ class RelatorioDosModelos:
                     'Model Name': modelname,
                     'Difference': difference_str
                 })
+
+    def save_roc_pr_curves_regression(self, y_true_categories, y_pred_values, modelname, thresholds, class_labels=None):
+        if class_labels is None:
+            class_labels = ['ilegal', 'suspeito', 'válido']
+
+        if thresholds is None or len(thresholds) != 2:
+            raise ValueError("thresholds deve conter exatamente dois valores: limite_ilegal_suspeito e limite_suspeito_valido")
+
+        low_threshold, high_threshold = thresholds
+        y_true_categories = np.asarray(y_true_categories)
+        y_pred_values = np.asarray(y_pred_values).reshape(-1)
+
+        if len(y_true_categories) != len(y_pred_values):
+            raise ValueError("y_true_categories e y_pred_values devem ter o mesmo tamanho")
+
+        valid_mask = np.isin(y_true_categories, class_labels)
+        y_true_categories = y_true_categories[valid_mask]
+        y_pred_values = y_pred_values[valid_mask]
+
+        if len(y_true_categories) == 0:
+            raise ValueError("Nenhuma categoria válida encontrada para gerar ROC/PR")
+
+        center_threshold = (low_threshold + high_threshold) / 2.0
+
+        illegal_score = low_threshold - y_pred_values
+        suspeito_score = -np.abs(y_pred_values - center_threshold)
+        valido_score = y_pred_values - high_threshold
+
+        raw_scores = np.column_stack([illegal_score, suspeito_score, valido_score]).astype(float)
+        raw_scores = raw_scores - np.max(raw_scores, axis=1, keepdims=True)
+        exp_scores = np.exp(raw_scores)
+        class_scores = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+        y_true_bin = label_binarize(y_true_categories, classes=class_labels)
+
+        output_curve_dir = os.path.join(
+            self.base_dir,
+            "DadosDoPostreino/ModelosNew" if "New" in self.output_directoryCSV else "DadosDoPostreino/ModelosOlds",
+            "CurvasROC_PR"
+        )
+        os.makedirs(output_curve_dir, exist_ok=True)
+
+        roc_results = {}
+        pr_results = {}
+        valid_indices = []
+
+        fig_roc = plt.figure(figsize=(10, 8))
+        for idx, label in enumerate(class_labels):
+            if len(np.unique(y_true_bin[:, idx])) < 2:
+                roc_results[label] = None
+                continue
+            fpr, tpr, _ = roc_curve(y_true_bin[:, idx], class_scores[:, idx])
+            roc_auc = auc(fpr, tpr)
+            roc_results[label] = roc_auc
+            valid_indices.append(idx)
+            plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC={roc_auc:.4f})')
+
+        plt.plot([0, 1], [0, 1], linestyle='--', color='gray', lw=1)
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(f'Curvas ROC One-vs-Rest - {modelname}')
+        plt.legend(loc='lower right')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        roc_path = os.path.join(output_curve_dir, f'roc_curve_{modelname}.jpg')
+        plt.savefig(roc_path, dpi=300, bbox_inches='tight')
+        plt.close(fig_roc)
+
+        fig_pr = plt.figure(figsize=(10, 8))
+        for idx, label in enumerate(class_labels):
+            if len(np.unique(y_true_bin[:, idx])) < 2:
+                pr_results[label] = None
+                continue
+            precision, recall, _ = precision_recall_curve(y_true_bin[:, idx], class_scores[:, idx])
+            ap = average_precision_score(y_true_bin[:, idx], class_scores[:, idx])
+            pr_results[label] = ap
+            plt.plot(recall, precision, lw=2, label=f'{label} (AP={ap:.4f})')
+
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title(f'Curvas Precision-Recall One-vs-Rest - {modelname}')
+        plt.legend(loc='lower left')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        pr_path = os.path.join(output_curve_dir, f'pr_curve_{modelname}.jpg')
+        plt.savefig(pr_path, dpi=300, bbox_inches='tight')
+        plt.close(fig_pr)
+
+        macro_roc = np.mean([roc_results[label] for label in class_labels if roc_results[label] is not None]) if valid_indices else None
+        macro_pr = np.mean([pr_results[label] for label in class_labels if pr_results[label] is not None]) if valid_indices else None
+
+        txt_path = os.path.join(output_curve_dir, f'roc_pr_metrics_{modelname}.txt')
+        with open(txt_path, 'w', encoding='utf-8') as f:
+            f.write(f"ROC/PR METRICS - {modelname}\n")
+            f.write("=" * 60 + "\n")
+            f.write(f"Threshold ilegal/suspeito: {low_threshold}\n")
+            f.write(f"Threshold suspeito/valido: {high_threshold}\n\n")
+            for label in class_labels:
+                f.write(f"{label}:\n")
+                f.write(f"  ROC AUC: {roc_results[label] if roc_results[label] is not None else 'N/A'}\n")
+                f.write(f"  Average Precision: {pr_results[label] if pr_results[label] is not None else 'N/A'}\n")
+            f.write("\n")
+            f.write(f"Macro ROC AUC: {macro_roc if macro_roc is not None else 'N/A'}\n")
+            f.write(f"Macro Average Precision: {macro_pr if macro_pr is not None else 'N/A'}\n")
+
+        return {
+            'roc_path': roc_path,
+            'pr_path': pr_path,
+            'txt_path': txt_path,
+            'roc_auc': roc_results,
+            'average_precision': pr_results,
+            'macro_roc_auc': macro_roc,
+            'macro_average_precision': macro_pr,
+        }

@@ -65,10 +65,13 @@ class TrainingThreadTCN(QThread):
         self.X_test = None
         self.y_train = None
         self.y_test = None
+        self.categories_test = None
+        self.category_thresholds = None
         self.logModel = LogTrain("TCN","16:10")
         self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def build_data(self, data):
+        self.category_thresholds = self.compute_category_thresholds(data)
         data['TXTDATE'] = pd.to_datetime(data['TXTDATE'])
         data['Dia_da_Semana'] = data['TXTDATE'].dt.dayofweek
         data['Mês'] = data['TXTDATE'].dt.month
@@ -86,8 +89,11 @@ class TrainingThreadTCN(QThread):
 
         X = data[features]
         y = data[target]
+        categories = data['CATEGORY']
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        self.X_train, self.X_test, self.y_train, self.y_test, _, self.categories_test = train_test_split(
+            X, y, categories, test_size=0.2, random_state=42
+        )
         self.dates_test = self.X_test['TXTDATE']
 
         numeric_features = ['Dia_da_Semana', 'Mês', 'Hora', 'LONGTIME_MA', 'LONGTIME_STD', 'LONGTIME_LAG_1', 'LONGTIME_LAG_2', 'LONGTIME_LAG_3']
@@ -196,6 +202,7 @@ class TrainingThreadTCN(QThread):
         relatorio.save_shared_metrics()
         relatorio.save_shared_metrics_list(mse_list,rmse_list,"Modelo TCN")
         relatorio.save_shared_difference_list(difference,"Modelo TCN")
+        relatorio.save_roc_pr_curves_regression(self.categories_test, test_results, "Modelo TCN", self.category_thresholds)
 
         self.update_prediction_chart.emit(y_test_array, test_results, dates_test_array,"Modelo TCN")
         self.show_test_accuracy.emit(test_mse)
@@ -231,3 +238,11 @@ class TrainingThreadTCN(QThread):
         model.save(keras_filename)
         print(f"Modelo TCN salvo em: {keras_filename}")
 
+    def compute_category_thresholds(self, data):
+        categorized = data.dropna(subset=['LONGTIME', 'CATEGORY'])
+        ilegal = categorized[categorized['CATEGORY'] == 'ilegal']['LONGTIME']
+        suspeito = categorized[categorized['CATEGORY'] == 'suspeito']['LONGTIME']
+        valido = categorized[categorized['CATEGORY'] == 'válido']['LONGTIME']
+        low_threshold = (ilegal.max() + suspeito.min()) / 2 if not ilegal.empty and not suspeito.empty else categorized['LONGTIME'].quantile(0.2)
+        high_threshold = (suspeito.max() + valido.min()) / 2 if not suspeito.empty and not valido.empty else categorized['LONGTIME'].quantile(0.8)
+        return float(low_threshold), float(high_threshold)
