@@ -34,6 +34,13 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import Pipeline as ImbPipeline
 from modelSummary.RelatorioDosModelos import RelatorioDosModelos
 from modelSummary.ModelSummary import ModelSummary
+from TratamentoDeDados.temporal_split import (
+    temporal_split,
+    add_temporal_features_safe,
+    analyze_class_distribution,
+    DEFAULT_FEATURES,
+    DEFAULT_TARGET,
+)
 
 class KerasTCNRegressorBalanced(BaseEstimator, RegressorMixin):
   def __init__(self, input_shape, nb_filters=64, kernel_size=3, nb_stacks=1, 
@@ -111,96 +118,11 @@ class TrainingThreadTCNCorrigido(QThread):
     self.dates_test = None
     self.scaler = None
     
-  def temporal_split(self, data, test_ratio=0.2):
-    """
-    Divisão temporal correta dos dados
-    """
-    print("Realizando divisão temporal dos dados...")
-    
-    # Criar coluna datetime combinando data e hora
-    data['DATETIME'] = pd.to_datetime(data['TXTDATE'].astype(str) + ' ' + data['TXTTIME'].astype(str))
-    
-    # Remover duplicatas temporais
-    print(f"Dados originais: {len(data)} registros")
-    data_clean = data.drop_duplicates(subset=['DATETIME'], keep='first').copy()
-    print(f"Apos limpeza: {len(data_clean)} registros ({len(data) - len(data_clean)} duplicatas removidas)")
-    
-    # Ordenar por datetime completo (data + hora)
-    data_sorted = data_clean.sort_values('DATETIME').reset_index(drop=True)
-    
-    # Calcular ponto de divisão
-    split_idx = int(len(data_sorted) * (1 - test_ratio))
-    
-    train_data = data_sorted.iloc[:split_idx].copy()
-    test_data = data_sorted.iloc[split_idx:].copy()
-    
-    print(f"\nDivisao temporal:")
-    print(f"  Treino: {train_data['DATETIME'].min()} ate {train_data['DATETIME'].max()} ({len(train_data)} amostras)")
-    print(f"  Teste: {test_data['DATETIME'].min()} ate {test_data['DATETIME'].max()} ({len(test_data)} amostras)")
-    print(f"  DATETIME únicos no teste: {test_data['DATETIME'].nunique()}")
-    print(f"  Primeiros 10 DATETIME do teste:")
-    print(test_data['DATETIME'].head(10).values)
-    
-    return train_data, test_data
-  
-  def add_temporal_features_safe(self, data, is_train=True):
-    """
-    Adiciona features temporais sem vazamento
-    """
-    data = data.copy()
-    data['TXTDATE'] = pd.to_datetime(data['TXTDATE'])
-    data['Dia_da_Semana'] = data['TXTDATE'].dt.dayofweek
-    data['Mês'] = data['TXTDATE'].dt.month
-    data['Hora'] = pd.to_datetime(data['TXTTIME'], format='%H:%M:%S').dt.hour
-    
-    # Ordenar por data para garantir ordem temporal
-    data = data.sort_values('TXTDATE').reset_index(drop=True)
-    
-    # Moving average e std - calculados apenas dentro do conjunto
-    window_size = 3
-    data['LONGTIME_MA'] = data['LONGTIME'].rolling(window=window_size, min_periods=1).mean()
-    data['LONGTIME_STD'] = data['LONGTIME'].rolling(window=window_size, min_periods=1).std().fillna(0)
-    
-    # Lag features - calculados apenas dentro do conjunto
-    for lag in [1, 2, 3]:
-      data[f'LONGTIME_LAG_{lag}'] = data['LONGTIME'].shift(lag)
-    
-    # Remover NaN resultantes dos lags
-    data = data.dropna().reset_index(drop=True)
-    
-    prefix = "Treino" if is_train else "Teste"
-    print(f"Features temporais adicionadas ao conjunto de {prefix}: {len(data)} amostras restantes")
-    
-    return data
-  
-  def analyze_class_distribution(self, data):
-    """
-    Analisa distribuição das classes e calcula pesos
-    """
-    print("Analisando distribuição das classes...")
-    
-    class_counts = data['CATEGORY'].value_counts()
-    total = len(data)
-    
-    print("Distribuição original:")
-    for cls, count in class_counts.items():
-      print(f"  {cls}: {count} ({count/total*100:.1f}%)")
-    
-    # Calcular pesos de classe balanceados
-    unique_classes = data['CATEGORY'].unique()
-    class_weights_array = compute_class_weight(
-      'balanced', 
-      classes=unique_classes, 
-      y=data['CATEGORY']
-    )
-    class_weights = dict(zip(unique_classes, class_weights_array))
-    
-    print("Pesos calculados para balanceamento:")
-    for cls, weight in class_weights.items():
-      print(f"  {cls}: {weight:.3f}")
-      
-    return class_weights
-  
+  # Métodos temporal_split, add_temporal_features_safe e analyze_class_distribution
+  # foram extraídos para TratamentoDeDados/temporal_split.py (fonte única
+  # compartilhada com LSTM/GRU/RNN/MLP e o futuro Transformer V5).
+  # Equivalência validada por scripts/test_temporal_split_parity.py.
+
   def apply_balancing_technique(self, X, y, categories, technique='smote'):
     """
     Aplica técnicas de balanceamento de classes
@@ -264,20 +186,19 @@ class TrainingThreadTCNCorrigido(QThread):
     """
     print("Construindo dados com metodologia corrigida...")
     
-    # 1. PRIMEIRO: Divisão temporal
-    train_data, test_data = self.temporal_split(data)
-    
+    # 1. PRIMEIRO: Divisão temporal (módulo compartilhado)
+    train_data, test_data = temporal_split(data, model_name="TCN")
+
     # 2. Analisar distribuição das classes (apenas no treino)
-    class_weights = self.analyze_class_distribution(train_data)
-    
+    class_weights = analyze_class_distribution(train_data, model_name="TCN")
+
     # 3. Adicionar features temporais separadamente
-    train_data = self.add_temporal_features_safe(train_data, is_train=True)
-    test_data = self.add_temporal_features_safe(test_data, is_train=False)
-    
-    # 4. Preparar features e target
-    features = ['Dia_da_Semana', 'Mês', 'Hora', 'LONGTIME_MA', 'LONGTIME_STD', 
-          'LONGTIME_LAG_1', 'LONGTIME_LAG_2', 'LONGTIME_LAG_3']
-    target = 'LONGTIME'
+    train_data = add_temporal_features_safe(train_data, is_train=True, model_name="TCN")
+    test_data = add_temporal_features_safe(test_data, is_train=False, model_name="TCN")
+
+    # 4. Preparar features e target (constantes do módulo compartilhado)
+    features = DEFAULT_FEATURES
+    target = DEFAULT_TARGET
     
     # Separar dados
     X_train = train_data[features].values
