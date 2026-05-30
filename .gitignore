@@ -107,3 +107,8 @@ ipython_config.py
 
 # pipenv
 /.venv
+node_modules/
+/.vscode/
+/.claude
+/.codex
+.codex

@@ -119025,3 +119025,124 @@ TypeError: Object of type Response is not JSON serializable
 2025-11-01 19:04:13,225 - 127.0.0.1 - - [01/Nov/2025 19:04:13] "OPTIONS /set_model HTTP/1.1" 200 -
 2025-11-01 19:04:13,325 - 127.0.0.1 - - [01/Nov/2025 19:04:13] "POST /set_model HTTP/1.1" 200 -
 2025-11-01 19:04:14,511 - 127.0.0.1 - - [01/Nov/2025 19:04:14] "GET /gerar_dados?filter=todos HTTP/1.1" 200 -
+2026-05-29 21:21:56,883 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.24:5000
+2026-05-29 21:21:56,883 - [33mPress CTRL+C to quit[0m
+2026-05-29 21:25:21,837 - 127.0.0.1 - - [29/May/2026 21:25:21] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:25:21,881 - 127.0.0.1 - - [29/May/2026 21:25:21] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 21:25:27,816 - 127.0.0.1 - - [29/May/2026 21:25:27] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:25:27,849 - 127.0.0.1 - - [29/May/2026 21:25:27] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:25:34,478 - 127.0.0.1 - - [29/May/2026 21:25:34] "OPTIONS /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:25:34,483 - 127.0.0.1 - - [29/May/2026 21:25:34] "[31m[1mPOST /toggle_mode HTTP/1.1[0m" 403 -
+2026-05-29 21:25:39,611 - 127.0.0.1 - - [29/May/2026 21:25:39] "OPTIONS /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:25:39,612 - 127.0.0.1 - - [29/May/2026 21:25:39] "POST /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:25:39,615 - 127.0.0.1 - - [29/May/2026 21:25:39] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:25:40,091 - 127.0.0.1 - - [29/May/2026 21:25:40] "[31m[1mPOST /toggle_mode HTTP/1.1[0m" 403 -
+2026-05-29 21:25:41,615 - 127.0.0.1 - - [29/May/2026 21:25:41] "POST /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:25:41,628 - 127.0.0.1 - - [29/May/2026 21:25:41] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:34:41,099 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.24:5000
+2026-05-29 21:34:41,099 - [33mPress CTRL+C to quit[0m
+2026-05-29 21:34:50,057 - 127.0.0.1 - - [29/May/2026 21:34:50] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:34:50,087 - 127.0.0.1 - - [29/May/2026 21:34:50] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 21:34:59,952 - 127.0.0.1 - - [29/May/2026 21:34:59] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:35:00,009 - 127.0.0.1 - - [29/May/2026 21:35:00] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 21:35:01,167 - 127.0.0.1 - - [29/May/2026 21:35:01] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:35:01,322 - 127.0.0.1 - - [29/May/2026 21:35:01] "GET /gerar_dados?filter=todos HTTP/1.1" 200 -
+2026-05-29 21:35:11,015 - 127.0.0.1 - - [29/May/2026 21:35:11] "OPTIONS /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:35:11,020 - 127.0.0.1 - - [29/May/2026 21:35:11] "[31m[1mPOST /toggle_mode HTTP/1.1[0m" 403 -
+2026-05-29 21:50:01,219 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.24:5000
+2026-05-29 21:50:01,219 - [33mPress CTRL+C to quit[0m
+2026-05-29 21:50:46,275 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.24:5000
+2026-05-29 21:50:46,275 - [33mPress CTRL+C to quit[0m
+2026-05-29 21:50:50,552 - 127.0.0.1 - - [29/May/2026 21:50:50] "OPTIONS /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:50:50,559 - 127.0.0.1 - - [29/May/2026 21:50:50] "POST /toggle_mode HTTP/1.1" 200 -
+2026-05-29 21:50:50,563 - 127.0.0.1 - - [29/May/2026 21:50:50] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:55:43,516 - 127.0.0.1 - - [29/May/2026 21:55:43] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:56:21,728 - 127.0.0.1 - - [29/May/2026 21:56:21] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:56:40,730 - 127.0.0.1 - - [29/May/2026 21:56:40] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:56:40,753 - 127.0.0.1 - - [29/May/2026 21:56:40] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 21:56:49,978 - 127.0.0.1 - - [29/May/2026 21:56:49] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:56:50,023 - 127.0.0.1 - - [29/May/2026 21:56:50] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:56:59,974 - 127.0.0.1 - - [29/May/2026 21:56:59] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:57:00,021 - 127.0.0.1 - - [29/May/2026 21:57:00] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:57:09,975 - 127.0.0.1 - - [29/May/2026 21:57:09] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:57:09,995 - 127.0.0.1 - - [29/May/2026 21:57:09] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:57:19,975 - 127.0.0.1 - - [29/May/2026 21:57:19] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:57:20,016 - 127.0.0.1 - - [29/May/2026 21:57:20] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:57:29,976 - 127.0.0.1 - - [29/May/2026 21:57:29] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:57:30,016 - 127.0.0.1 - - [29/May/2026 21:57:30] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:57:39,978 - 127.0.0.1 - - [29/May/2026 21:57:39] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:57:40,027 - 127.0.0.1 - - [29/May/2026 21:57:40] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:57:49,975 - 127.0.0.1 - - [29/May/2026 21:57:49] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:57:50,026 - 127.0.0.1 - - [29/May/2026 21:57:50] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:57:59,976 - 127.0.0.1 - - [29/May/2026 21:57:59] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:58:00,036 - 127.0.0.1 - - [29/May/2026 21:58:00] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:58:09,980 - 127.0.0.1 - - [29/May/2026 21:58:09] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:58:09,999 - 127.0.0.1 - - [29/May/2026 21:58:09] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:58:19,975 - 127.0.0.1 - - [29/May/2026 21:58:19] "GET /status HTTP/1.1" 200 -
+2026-05-29 21:58:20,024 - 127.0.0.1 - - [29/May/2026 21:58:20] "GET /gerar_dados?filter=antigos HTTP/1.1" 200 -
+2026-05-29 21:59:31,297 - 127.0.0.1 - - [29/May/2026 21:59:31] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:02:15,857 - 127.0.0.1 - - [29/May/2026 22:02:15] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:02:27,655 - 127.0.0.1 - - [29/May/2026 22:02:27] "OPTIONS /toggle_mode HTTP/1.1" 200 -
+2026-05-29 22:02:27,659 - 127.0.0.1 - - [29/May/2026 22:02:27] "POST /toggle_mode HTTP/1.1" 200 -
+2026-05-29 22:02:27,672 - 127.0.0.1 - - [29/May/2026 22:02:27] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:02:28,949 - 127.0.0.1 - - [29/May/2026 22:02:28] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:02:28,993 - 127.0.0.1 - - [29/May/2026 22:02:28] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:02:38,949 - 127.0.0.1 - - [29/May/2026 22:02:38] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:02:39,000 - 127.0.0.1 - - [29/May/2026 22:02:39] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:04:31,427 - 127.0.0.1 - - [29/May/2026 22:04:31] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:04:33,722 - 127.0.0.1 - - [29/May/2026 22:04:33] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:04:33,774 - 127.0.0.1 - - [29/May/2026 22:04:33] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:04:43,723 - 127.0.0.1 - - [29/May/2026 22:04:43] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:04:43,758 - 127.0.0.1 - - [29/May/2026 22:04:43] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:06:54,593 - 127.0.0.1 - - [29/May/2026 22:06:54] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:06:57,379 - 127.0.0.1 - - [29/May/2026 22:06:57] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:06:57,419 - 127.0.0.1 - - [29/May/2026 22:06:57] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:07:07,380 - 127.0.0.1 - - [29/May/2026 22:07:07] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:07:07,440 - 127.0.0.1 - - [29/May/2026 22:07:07] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:07:17,378 - 127.0.0.1 - - [29/May/2026 22:07:17] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:07:17,402 - 127.0.0.1 - - [29/May/2026 22:07:17] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:07:27,378 - 127.0.0.1 - - [29/May/2026 22:07:27] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:07:27,425 - 127.0.0.1 - - [29/May/2026 22:07:27] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:07:37,379 - 127.0.0.1 - - [29/May/2026 22:07:37] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:07:37,410 - 127.0.0.1 - - [29/May/2026 22:07:37] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:07:47,378 - 127.0.0.1 - - [29/May/2026 22:07:47] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:07:47,421 - 127.0.0.1 - - [29/May/2026 22:07:47] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:07:57,378 - 127.0.0.1 - - [29/May/2026 22:07:57] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:07:57,433 - 127.0.0.1 - - [29/May/2026 22:07:57] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:08:07,378 - 127.0.0.1 - - [29/May/2026 22:08:07] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:08:07,434 - 127.0.0.1 - - [29/May/2026 22:08:07] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:08:17,387 - 127.0.0.1 - - [29/May/2026 22:08:17] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:08:17,415 - 127.0.0.1 - - [29/May/2026 22:08:17] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:12:07,720 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.24:5000
+2026-05-29 22:12:07,720 - [33mPress CTRL+C to quit[0m
+2026-05-29 22:12:11,307 - 127.0.0.1 - - [29/May/2026 22:12:11] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:12:16,117 - 127.0.0.1 - - [29/May/2026 22:12:16] "OPTIONS /toggle_mode HTTP/1.1" 200 -
+2026-05-29 22:12:16,132 - 127.0.0.1 - - [29/May/2026 22:12:16] "POST /toggle_mode HTTP/1.1" 200 -
+2026-05-29 22:12:16,138 - 127.0.0.1 - - [29/May/2026 22:12:16] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:12:39,088 - 127.0.0.1 - - [29/May/2026 22:12:39] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:13:07,598 - 127.0.0.1 - - [29/May/2026 22:13:07] "OPTIONS /set_simulation_config HTTP/1.1" 200 -
+2026-05-29 22:13:07,614 - 127.0.0.1 - - [29/May/2026 22:13:07] "POST /set_simulation_config HTTP/1.1" 200 -
+2026-05-29 22:13:08,869 - 127.0.0.1 - - [29/May/2026 22:13:08] "POST /set_simulation_config HTTP/1.1" 200 -
+2026-05-29 22:13:09,545 - 127.0.0.1 - - [29/May/2026 22:13:09] "POST /set_simulation_config HTTP/1.1" 200 -
+2026-05-29 22:13:10,202 - 127.0.0.1 - - [29/May/2026 22:13:10] "POST /set_simulation_config HTTP/1.1" 200 -
+2026-05-29 22:13:30,099 - 127.0.0.1 - - [29/May/2026 22:13:30] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:13:30,220 - 127.0.0.1 - - [29/May/2026 22:13:30] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:13:40,106 - 127.0.0.1 - - [29/May/2026 22:13:40] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:13:40,188 - 127.0.0.1 - - [29/May/2026 22:13:40] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-05-29 22:13:50,097 - 127.0.0.1 - - [29/May/2026 22:13:50] "GET /status HTTP/1.1" 200 -
+2026-05-29 22:13:50,134 - 127.0.0.1 - - [29/May/2026 22:13:50] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -

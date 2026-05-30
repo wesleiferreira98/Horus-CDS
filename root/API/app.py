@@ -118,6 +118,24 @@ def set_model():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/set_simulation_config', methods=['POST'])
+def set_simulation_config():
+    """Configura o tipo de tráfego gerado na simulação."""
+    data = request.json
+    mode = data.get('mode', 'mixed')
+    attack_ratio = float(data.get('attack_ratio', 0.5))
+
+    if mode not in ('attack', 'allowed', 'mixed'):
+        return jsonify({"error": "Modo inválido. Use: attack, allowed ou mixed"}), 400
+
+    attack_ratio = max(0.0, min(1.0, attack_ratio))
+
+    with packet_sniffer.lock:
+        packet_sniffer.sim_config = {"mode": mode, "attack_ratio": attack_ratio}
+
+    label = {"attack": "100% Ataques", "allowed": "100% Permitido", "mixed": f"Misto ({attack_ratio*100:.0f}% ataques)"}
+    return jsonify({"message": f"Simulação configurada: {label[mode]}"})
+
 @app.route('/status', methods=['GET'])
 def get_status():
     """Retorna o status da API e modo de captura"""
