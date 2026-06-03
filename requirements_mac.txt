@@ -43,6 +43,10 @@ tensorflow-macos>=2.16,<2.17
 tensorflow-metal>=1.2
 keras>=3.0
 
+# IMPORTANTE: pinar setuptools em 69.5.1 (exatamente).
+
+setuptools==69.5.1
+
 
 # -----------------------------------------------------------------------------
 # Modelos atuais que rodam em Keras (V1–V4)
