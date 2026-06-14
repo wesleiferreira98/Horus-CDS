@@ -146826,3 +146826,6 @@ Requisição normal. Permitida. Pacote: Simulated TCP Packet #13
 Ataque detectado! Requisição negada. Pacote: Simulated TCP Packet #14
 Requisição normal. Permitida. Pacote: Simulated TCP Packet #15
 Requisição normal. Permitida. Pacote: Simulated TCP Packet #16
+Ataque detectado! Requisição negada. Pacote: Simulated TCP Packet #17
+Requisição normal. Permitida. Pacote: Simulated TCP Packet #18
+Requisição normal. Permitida. Pacote: Simulated TCP Packet #19
