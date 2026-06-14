@@ -1,17 +1,17 @@
 function MetricItem({ label, value, desc, accent }) {
   const accents = {
-    blue:   'text-blue-500 dark:text-blue-400',
-    red:    'text-red-500 dark:text-red-400',
-    cyan:   'text-cyan-500 dark:text-cyan-400',
-    purple: 'text-purple-500 dark:text-purple-400',
+    primary: 'text-brand-primary dark:text-white',
+    red:     'text-red-500 dark:text-red-400',
+    teal:    'text-brand-primary dark:text-brand-muted',
+    muted:   'text-brand-text dark:text-gray-300',
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center gap-4">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-brand-muted/30 dark:border-gray-800 px-4 py-3 flex items-center gap-4">
       <div className="min-w-0">
-        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">{label}</p>
+        <p className="text-xs text-brand-soft dark:text-gray-400 font-medium truncate">{label}</p>
         <p className={`text-xl font-bold mt-0.5 truncate ${accents[accent]}`}>{value}</p>
-        <p className="text-xs text-gray-400 dark:text-gray-600 mt-0.5 truncate">{desc}</p>
+        <p className="text-xs text-brand-muted dark:text-gray-600 mt-0.5 truncate">{desc}</p>
       </div>
     </div>
   )
@@ -36,7 +36,7 @@ export default function MetricsSummary({ data, apiStatus }) {
         label="Total Analisados"
         value={total > 0 ? total.toLocaleString('pt-BR') : '—'}
         desc="pacotes acumulados"
-        accent="blue"
+        accent="primary"
       />
       <MetricItem
         label="Taxa de Ataques"
@@ -48,13 +48,13 @@ export default function MetricsSummary({ data, apiStatus }) {
         label="Predições no Buffer"
         value={totalPred > 0 ? totalPred.toLocaleString('pt-BR') : '—'}
         desc="resultados registrados"
-        accent="cyan"
+        accent="teal"
       />
       <MetricItem
         label="Modelo Ativo"
         value={modelShort || '—'}
         desc="limiar de ataque: 200"
-        accent="purple"
+        accent="muted"
       />
     </div>
   )

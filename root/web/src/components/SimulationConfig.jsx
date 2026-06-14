@@ -35,14 +35,14 @@ export default function SimulationConfig({ onApply, applying }) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-amber-300/40 dark:border-amber-700/30 p-5 space-y-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-amber-300/50 dark:border-amber-700/30 p-5 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+          <h3 className="text-sm font-semibold text-brand-text dark:text-gray-200">
             Configuração de Simulação
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <p className="text-xs text-brand-soft dark:text-gray-400 mt-0.5">
             Escolha o tipo de tráfego a ser gerado
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function SimulationConfig({ onApply, applying }) {
             className={`p-3 rounded-xl border text-left transition-all ${
               mode === m.id
                 ? m.selected
-                : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 ' + m.idle
+                : 'bg-brand-bg dark:bg-gray-800 border-brand-muted/20 dark:border-gray-700 hover:bg-brand-primary/5 dark:hover:bg-gray-700 ' + m.idle
             }`}
           >
             <div className="font-semibold text-sm">{m.label}</div>
@@ -112,7 +112,7 @@ export default function SimulationConfig({ onApply, applying }) {
             />
           </div>
 
-          <p className="text-xs text-gray-400 dark:text-gray-600 text-center">
+          <p className="text-xs text-brand-soft dark:text-gray-600 text-center">
             A cada 100 pacotes: ~{allowedPct} permitidos e ~{attackRatio} ataques
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function SimulationConfig({ onApply, applying }) {
         onClick={handleApply}
         disabled={applying}
         className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all
-                   bg-cyan-600 hover:bg-cyan-700 text-white
+                   bg-brand-primary hover:bg-brand-hover text-white
                    disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {applying ? 'Aplicando...' : 'Aplicar Configuração'}

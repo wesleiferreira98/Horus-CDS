@@ -230,7 +230,7 @@ print_sep
 echo ""
 echo -e "  ${BOLD}${GREEN}▶ Horus-CDS está em execução${NC}"
 echo ""
-echo -e "  ${GREEN}API:${NC}       http://localhost:5000"
+echo -e "  ${GREEN}API:${NC}       http://localhost:5000/docs"
 echo -e "  ${GREEN}Dashboard:${NC} http://localhost:5001"
 echo ""
 

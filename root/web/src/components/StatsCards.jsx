@@ -99,11 +99,11 @@ function StatCard({ label, value, total, color }) {
       {/* Barra de progresso percentual */}
       {total > 0 && (
         <div className="mt-4 relative z-10">
-          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-500 mb-1.5">
+          <div className="flex justify-between text-xs text-brand-soft dark:text-gray-500 mb-1.5">
             <span>{pct.toFixed(1)}% do total</span>
             <span>{total.toLocaleString('pt-BR')} total</span>
           </div>
-          <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-1 bg-brand-muted/30 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${PROGRESS_COLOR[color]}`}
               style={{ width: `${pct}%` }}

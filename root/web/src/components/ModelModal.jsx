@@ -11,14 +11,14 @@ export default function ModelModal({ open, onClose, currentModel, onSelect }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-md overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-900 rounded-2xl border border-brand-muted/40 dark:border-gray-700 shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Selecionar Modelo</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <div className="px-6 py-5 border-b border-brand-muted/20 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-brand-primary dark:text-white">Selecionar Modelo</h2>
+          <p className="text-sm text-brand-soft dark:text-gray-400 mt-1">
             Escolha o modelo de detecção ativo
           </p>
         </div>
@@ -33,18 +33,20 @@ export default function ModelModal({ open, onClose, currentModel, onSelect }) {
                 onClick={() => onSelect(model.name)}
                 className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
                   isActive
-                    ? 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-300 dark:border-cyan-700/60'
-                    : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-brand-bg dark:bg-brand-primary/20 border-brand-primary/40 dark:border-brand-primary/50'
+                    : 'bg-brand-bg/50 dark:bg-gray-800 border-brand-muted/20 dark:border-gray-700 hover:bg-brand-bg dark:hover:bg-gray-700'
                 }`}
               >
                 <div>
-                  <div className={`font-semibold text-sm ${isActive ? 'text-cyan-700 dark:text-cyan-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                  <div className={`font-semibold text-sm ${isActive ? 'text-brand-primary dark:text-white' : 'text-brand-text dark:text-gray-200'}`}>
                     {model.name}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{model.desc}</div>
+                  <div className="text-xs text-brand-soft dark:text-gray-400 mt-0.5">{model.desc}</div>
                 </div>
                 {isActive && (
-                  <span className="shrink-0 ml-3 text-xs bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-400 border border-cyan-300 dark:border-cyan-700/50 px-2.5 py-0.5 rounded-full font-semibold">
+                  <span className="shrink-0 ml-3 text-xs bg-brand-primary/10 dark:bg-brand-primary/30
+                                   text-brand-primary dark:text-white border border-brand-primary/30 dark:border-brand-primary/50
+                                   px-2.5 py-0.5 rounded-full font-semibold">
                     Ativo
                   </span>
                 )}
@@ -54,12 +56,12 @@ export default function ModelModal({ open, onClose, currentModel, onSelect }) {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+        <div className="px-5 py-4 border-t border-brand-muted/20 dark:border-gray-800 flex justify-end">
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl text-sm font-semibold
-                       bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                       hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                       bg-brand-bg dark:bg-gray-800 text-brand-text dark:text-gray-300 border border-brand-muted/30
+                       hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-gray-700 transition-colors"
           >
             Fechar
           </button>

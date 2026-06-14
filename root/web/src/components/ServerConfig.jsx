@@ -46,29 +46,30 @@ export default function ServerConfig({
     : null
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 space-y-4">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-brand-muted/30 dark:border-gray-800 p-5 space-y-4">
       {/* URL da API + status + timestamp */}
       <div className="flex gap-3 items-center flex-wrap">
-        <div className="flex-1 flex items-center gap-2.5 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl min-w-0">
-          <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 shrink-0 uppercase tracking-wide">
+        <div className="flex-1 flex items-center gap-2.5 px-4 py-2.5 bg-brand-bg dark:bg-gray-800
+                        border border-brand-muted/30 dark:border-gray-700 rounded-xl min-w-0">
+          <span className="text-xs font-semibold text-brand-muted dark:text-gray-500 shrink-0 uppercase tracking-wide">
             API
           </span>
-          <span className="text-sm text-gray-600 dark:text-gray-300 font-mono truncate">
+          <span className="text-sm text-brand-text dark:text-gray-300 font-mono truncate">
             {apiBase ?? '…'}
           </span>
         </div>
 
         <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-2.5 rounded-xl border shrink-0 transition-colors ${
           connected
-            ? 'bg-emerald-900/20 text-emerald-400 border-emerald-700/50'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 border-gray-200 dark:border-gray-700'
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700/50'
+            : 'bg-brand-bg dark:bg-gray-800 text-brand-soft dark:text-gray-400 border-brand-muted/30 dark:border-gray-700'
         }`}>
-          <span className={`w-2 h-2 rounded-full shrink-0 ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'}`} />
+          <span className={`w-2 h-2 rounded-full shrink-0 ${connected ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-brand-muted'}`} />
           {connected ? 'Online' : 'Offline'}
         </div>
 
         {formattedTime && (
-          <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 shrink-0">
+          <div className="flex items-center gap-1.5 text-xs text-brand-soft dark:text-gray-500 shrink-0">
             <ClockIcon />
             <span>Atualizado às {formattedTime}</span>
           </div>
@@ -82,8 +83,8 @@ export default function ServerConfig({
             onClick={onToggleMonitor}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
               monitoring
-                ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-900/30'
-                : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg shadow-cyan-900/30'
+                ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm shadow-red-200 dark:shadow-red-900/30'
+                : 'bg-brand-primary hover:bg-brand-hover text-white shadow-sm shadow-brand-muted/30'
             }`}
           >
             {monitoring ? <PauseIcon /> : <PlayIcon />}
@@ -94,8 +95,9 @@ export default function ServerConfig({
             onClick={onSync}
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
-                       bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300
-                       hover:bg-gray-200 dark:hover:bg-gray-700
+                       bg-brand-bg dark:bg-gray-800 text-brand-text dark:text-gray-300
+                       border border-brand-muted/30 dark:border-gray-700
+                       hover:bg-brand-primary/10 dark:hover:bg-gray-700
                        disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <SyncIcon spinning={loading} />
@@ -105,24 +107,24 @@ export default function ServerConfig({
 
         {apiStatus && (
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-gray-500 dark:text-gray-400 font-medium">Modo:</span>
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+            <span className="text-brand-soft dark:text-gray-400 font-medium">Modo:</span>
+            <div className="flex rounded-lg overflow-hidden border border-brand-muted/30 dark:border-gray-700">
               <button
                 onClick={() => onToggleMode(true)}
                 className={`px-3 py-1.5 font-semibold transition-colors ${
                   simulationMode === true
                     ? 'bg-amber-500 text-white'
-                    : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    : 'bg-white dark:bg-gray-800 text-brand-soft dark:text-gray-400 hover:bg-brand-bg dark:hover:bg-gray-700'
                 }`}
               >
                 Simulação
               </button>
               <button
                 onClick={() => onToggleMode(false)}
-                className={`px-3 py-1.5 font-semibold transition-colors border-l border-gray-200 dark:border-gray-700 ${
+                className={`px-3 py-1.5 font-semibold transition-colors border-l border-brand-muted/30 dark:border-gray-700 ${
                   simulationMode === false
-                    ? 'bg-cyan-600 text-white'
-                    : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white dark:bg-gray-800 text-brand-soft dark:text-gray-400 hover:bg-brand-bg dark:hover:bg-gray-700'
                 }`}
               >
                 Captura Real
@@ -133,7 +135,7 @@ export default function ServerConfig({
       </div>
 
       {monitoring && (
-        <p className="text-xs text-cyan-500 dark:text-cyan-400">
+        <p className="text-xs text-brand-primary dark:text-brand-muted">
           Atualizando automaticamente a cada 10 segundos...
         </p>
       )}

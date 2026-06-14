@@ -30,10 +30,10 @@ const THRESHOLD = 200
 
 function ChartCard({ title, subtitle, children }) {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 flex flex-col">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-brand-muted/30 dark:border-gray-800 p-5 flex flex-col">
       <div className="mb-4 shrink-0">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{title}</h3>
-        {subtitle && <p className="text-xs text-gray-400 dark:text-gray-600 mt-0.5">{subtitle}</p>}
+        <h3 className="text-sm font-semibold text-brand-text dark:text-gray-300 uppercase tracking-wide">{title}</h3>
+        {subtitle && <p className="text-xs text-brand-soft dark:text-gray-600 mt-0.5">{subtitle}</p>}
       </div>
       <div className="flex-1 min-h-0">
         {children}
@@ -44,7 +44,7 @@ function ChartCard({ title, subtitle, children }) {
 
 function EmptyChart() {
   return (
-    <div className="h-52 flex flex-col items-center justify-center gap-2 text-gray-300 dark:text-gray-700">
+    <div className="h-52 flex flex-col items-center justify-center gap-2 text-brand-muted dark:text-gray-700">
       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -57,9 +57,9 @@ function EmptyChart() {
 export default function ChartsSection({ data, chartType }) {
   const isDark = useIsDark()
 
-  const gridColor = isDark ? '#1f2937' : '#f1f5f9'
-  const tickColor = isDark ? '#6b7280' : '#94a3b8'
-  const legendColor = isDark ? '#d1d5db' : '#374151'
+  const gridColor = isDark ? '#1f2937' : '#e0eef2'
+  const tickColor = isDark ? '#6b7280' : '#96adb6'
+  const legendColor = isDark ? '#d1d5db' : '#7c7c84'
 
   const scaleBase = {
     grid: { color: gridColor },
@@ -71,7 +71,7 @@ export default function ChartsSection({ data, chartType }) {
     backgroundColor: isDark ? '#1f2937' : '#ffffff',
     titleColor: legendColor,
     bodyColor: tickColor,
-    borderColor: isDark ? '#374151' : '#e5e7eb',
+    borderColor: isDark ? '#374151' : '#96adb6',
     borderWidth: 1,
     padding: 10,
     cornerRadius: 8,
@@ -137,8 +137,8 @@ export default function ChartsSection({ data, chartType }) {
     datasets: [{
       label: 'Predição Normalizada',
       data: normalized,
-      borderColor: '#06b6d4',
-      backgroundColor: isDark ? 'rgba(6,182,212,0.08)' : 'rgba(6,182,212,0.1)',
+      borderColor: '#1f6e7e',
+      backgroundColor: isDark ? 'rgba(31,110,126,0.10)' : 'rgba(31,110,126,0.08)',
       borderWidth: 2,
       fill: true,
       tension: 0.35,

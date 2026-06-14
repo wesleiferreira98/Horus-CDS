@@ -119146,3 +119146,18 @@ TypeError: Object of type Response is not JSON serializable
 2026-05-29 22:13:40,188 - 127.0.0.1 - - [29/May/2026 22:13:40] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
 2026-05-29 22:13:50,097 - 127.0.0.1 - - [29/May/2026 22:13:50] "GET /status HTTP/1.1" 200 -
 2026-05-29 22:13:50,134 - 127.0.0.1 - - [29/May/2026 22:13:50] "GET /gerar_dados?filter=recentes HTTP/1.1" 200 -
+2026-06-14 11:57:19,661 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.26:5000
+2026-06-14 11:57:19,661 - [33mPress CTRL+C to quit[0m
+2026-06-14 11:57:26,323 - 127.0.0.1 - - [14/Jun/2026 11:57:26] "GET /status HTTP/1.1" 200 -
+2026-06-14 11:58:26,573 - 127.0.0.1 - - [14/Jun/2026 11:58:26] "GET /status HTTP/1.1" 200 -
+2026-06-14 12:08:47,362 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.26:5000
+2026-06-14 12:08:47,362 - [33mPress CTRL+C to quit[0m
+2026-06-14 12:08:57,862 - 127.0.0.1 - - [14/Jun/2026 12:08:57] "GET /docs HTTP/1.1" 200 -
+2026-06-14 12:08:58,637 - 127.0.0.1 - - [14/Jun/2026 12:08:58] "GET /openapi.json HTTP/1.1" 200 -
+2026-06-14 12:08:58,786 - 127.0.0.1 - - [14/Jun/2026 12:08:58] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
