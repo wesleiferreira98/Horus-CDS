@@ -16,14 +16,17 @@ class PacketSniffer:
         self.lock = threading.Lock()
         self.running = False
         self.simulation_thread = None
-        
-        # Detectar modo automaticamente
+
+        # Configuração de simulação: modo e proporção de ataques
+        # mode: "mixed" | "attack" | "allowed"
+        # attack_ratio: float 0.0–1.0 (só relevante em "mixed")
+        self.sim_config = {"mode": "mixed", "attack_ratio": 0.5}
+
         if simulation_mode is None:
-            # Modo REAL por padrão, simulação apenas como fallback
             self.simulation_mode = False
         else:
             self.simulation_mode = simulation_mode
-        
+
         if self.simulation_mode:
             print("Modo SIMULACAO ativado (fallback - nao requer sudo)")
         else:
@@ -55,34 +58,43 @@ class PacketSniffer:
         return features.reshape((8, 1))
 
     def simulate_packets(self):
-        """Gera pacotes simulados para teste sem necessidade de permissões root"""
+        """Gera pacotes simulados com tipo e proporção configuráveis pelo usuário."""
         print("Iniciando simulacao de pacotes...")
         self.running = True
         packet_count = 0
-        
+
         while self.running:
             try:
-                # Simular um pacote a cada 2-5 segundos
                 time.sleep(np.random.uniform(2, 5))
-                
-                # Gerar características aleatórias
+
                 features = np.random.randint(30, 100, size=(8,))
                 features = features.reshape((8, 1))
-                
-                # Processar como se fosse um pacote real
+
                 with self.lock:
-                    is_attack = self.prediction_model.is_attack(features)
-                    
+                    # Chama o modelo para registrar a predição nos logs
+                    self.prediction_model.is_attack(features)
+
+                    # Determina o tipo do pacote conforme configuração do usuário
+                    mode         = self.sim_config.get("mode", "mixed")
+                    attack_ratio = self.sim_config.get("attack_ratio", 0.5)
+
+                    if mode == "attack":
+                        is_attack = True
+                    elif mode == "allowed":
+                        is_attack = False
+                    else:  # mixed
+                        is_attack = np.random.random() < attack_ratio
+
                     packet_count += 1
                     packet_summary = f"Simulated TCP Packet #{packet_count}"
-                    
+
                     if is_attack:
                         log_message = f"Ataque detectado! Requisição negada. Pacote: {packet_summary}"
                     else:
                         log_message = f"Requisição normal. Permitida. Pacote: {packet_summary}"
-                    
+
                     self.logger.log(log_message)
-                    
+
             except Exception as e:
                 print(f"Erro na simulação: {e}")
                 time.sleep(1)
