@@ -107,3 +107,18 @@ ipython_config.py
 
 # pipenv
 /.venv
+# Artefatos de treino (pesados, regeneráveis via scripts/)
+root/Linux/DadosDoPostreino/ModelosNew/Transformer/
+root/Linux/DadosDoPostreino/ModelosNew/TCN/exp_*/
+root/Linux/DadosDoPostreino/ModelosNew/LSTM/
+root/Linux/DadosDoPostreino/ModelosNew/GRU/
+*.pt
+
+# Documentos de trabalho do TCC
+docs/*.docx
+docs/*.pptx
+docs/PLANO_TRANSFORMER_V5.md
+
+# macOS
+.DS_Store
+docs/*.png
